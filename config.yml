@@ -1,4 +1,4 @@
-github:
-  user: 'Excel619'
-  repo: 'FileTest'
-  quest-folder: 'quests'
+project-id: '14145692'
+quests-path: 'quests'
+access-token: '_z-je9UaiRGB3xeTEysA'
+branch: 'master'

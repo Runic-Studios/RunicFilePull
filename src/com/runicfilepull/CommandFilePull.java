@@ -2,9 +2,7 @@ package com.runicfilepull;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.net.URL;
 
-import org.apache.commons.io.IOUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -13,7 +11,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-@SuppressWarnings("deprecation")
 public class CommandFilePull implements CommandExecutor {
 
 	@Override
@@ -32,21 +29,14 @@ public class CommandFilePull implements CommandExecutor {
 					quest.delete();
 				}
 			}
-			JSONArray array = getJSONArrayFromURL("https://api.github.com/repos/" + 
-					Plugin.getInstance().getConfig().getString("github.user") + "/" + 
-					Plugin.getInstance().getConfig().getString("github.repo") + "/contents/" + 
-					Plugin.getInstance().getConfig().getString("github.quests-folder"));
+			String folderURL = URLUtil.formatGitlabFolderPath(Plugin.getInstance().getConfig().getString("quests-path"));
+			JSONArray array = (JSONArray) (new JSONParser()).parse(URLUtil.getDataFromURL(folderURL));
 			for (int i = 0; i < array.size(); i++) {
 				JSONObject object = (JSONObject) array.get(i);
-				if (((String) object.get("type")).equalsIgnoreCase("file")) {
-					URL url = new URL((String) object.get("download_url"));
-					String data = IOUtils.toString(url.openStream());
-					File file = new File(questFolder, (String) object.get("name"));
-					file.createNewFile();
-					PrintWriter writer = new PrintWriter(file);	
-					writer.print(data);
-					writer.close();
-				}
+				if (((String) object.get("type")).equalsIgnoreCase("blob")) {
+					String fileURL = URLUtil.formatGitlabFilePath((String) object.get("path"));
+					writeToFile(new File(questFolder, (String) object.get("name")), URLUtil.getDataFromURL(fileURL));
+				} 
 			}
 		} catch (Exception exception) {
 			sender.sendMessage(ChatColor.RED + "There was an issue getting the files from the github repo. Refer to console for more information.");
@@ -56,12 +46,14 @@ public class CommandFilePull implements CommandExecutor {
 		sender.sendMessage(ChatColor.GREEN + "Successfully loaded quest files from github!");
 		return true;
 	}
-
-	private static JSONArray getJSONArrayFromURL(String urlString) throws Exception {
-		URL url = new URL(urlString);
-		String data = IOUtils.toString(url.openStream());
-		JSONArray jsonArray = (JSONArray) new JSONParser().parse(data);
-		return jsonArray;
+	
+	private static void writeToFile(File file, String data) throws Exception {
+		if (!file.exists()) {
+			file.createNewFile();
+		}
+		PrintWriter writer = new PrintWriter(file);	
+		writer.print(data);
+		writer.close();
 	}
 
 	private static File getSubFolder(File folder, String subfolder) {
