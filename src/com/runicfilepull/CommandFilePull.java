@@ -1,7 +1,6 @@
 package com.runicfilepull;
 
 import java.io.File;
-import java.io.PrintWriter;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -16,11 +15,11 @@ public class CommandFilePull implements CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		try {
-			File runicFolder = getSubFolder(Plugin.getInstance().getDataFolder().getParentFile(), "RunicQuests");
+			File runicFolder = Util.getSubFolder(Plugin.getInstance().getDataFolder().getParentFile(), "RunicQuests");
 			if (!runicFolder.exists()) {
 				runicFolder.mkdirs();
 			}
-			File questFolder = getSubFolder(runicFolder, "quests");
+			File questFolder = Util.getSubFolder(runicFolder, "quests");
 			if (!questFolder.exists()) {
 				questFolder.mkdirs();
 			}
@@ -29,13 +28,13 @@ public class CommandFilePull implements CommandExecutor {
 					quest.delete();
 				}
 			}
-			String folderURL = URLUtil.formatGitlabFolderPath(Plugin.getInstance().getConfig().getString("quests-path"));
-			JSONArray array = (JSONArray) (new JSONParser()).parse(URLUtil.getDataFromURL(folderURL));
+			String folderURL = Util.formatGitlabFolderPath(Plugin.getInstance().getConfig().getString("quests-path"));
+			JSONArray array = (JSONArray) (new JSONParser()).parse(Util.getDataFromURL(folderURL));
 			for (int i = 0; i < array.size(); i++) {
 				JSONObject object = (JSONObject) array.get(i);
 				if (((String) object.get("type")).equalsIgnoreCase("blob")) {
-					String fileURL = URLUtil.formatGitlabFilePath((String) object.get("path"));
-					writeToFile(new File(questFolder, (String) object.get("name")), URLUtil.getDataFromURL(fileURL));
+					String fileURL = Util.formatGitlabFilePath((String) object.get("path"));
+					Util.writeToFile(new File(questFolder, (String) object.get("name")), Util.getDataFromURL(fileURL));
 				} 
 			}
 		} catch (Exception exception) {
@@ -45,24 +44,6 @@ public class CommandFilePull implements CommandExecutor {
 		}
 		sender.sendMessage(ChatColor.GREEN + "Successfully loaded quest files from github!");
 		return true;
-	}
-	
-	private static void writeToFile(File file, String data) throws Exception {
-		if (!file.exists()) {
-			file.createNewFile();
-		}
-		PrintWriter writer = new PrintWriter(file);	
-		writer.print(data);
-		writer.close();
-	}
-
-	private static File getSubFolder(File folder, String subfolder) {
-		for (File file : folder.listFiles()) {
-			if (file.getName().equalsIgnoreCase(subfolder)) {
-				return file;
-			}
-		}
-		return null;
 	}
 
 }

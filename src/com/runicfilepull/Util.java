@@ -1,35 +1,34 @@
 package com.runicfilepull;
 
-import java.io.UnsupportedEncodingException;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.commons.io.IOUtils;
+public class Util {
 
-public class URLUtil {
-
-	public static String encodeStringForURL(String value) {
-		try {
-			return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
-		} catch (UnsupportedEncodingException ex) {
-			throw new RuntimeException(ex.getCause());
-		}
+	public static String encodeStringForURL(String value) throws Exception {
+		return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
 	}
 
-	@SuppressWarnings("deprecation")
-	public static String getDataFromURL(String urlString) {
-		try {
-			URL url = new URL(urlString);
-			String data = IOUtils.toString(url.openStream());
-			return data;
-		} catch (Exception exception) {
-			exception.printStackTrace();
+	public static String getDataFromURL(String url) throws Exception {
+		URL website = new URL(url);
+		URLConnection connection = website.openConnection();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+		StringBuilder response = new StringBuilder();
+		String inputLine;
+		while ((inputLine = reader.readLine()) != null) {
+			response.append(inputLine);
 		}
-		return null;
+		reader.close();
+		return response.toString();
 	}
-	
-	public static String formatGitlabFilePath(String path) {
+
+	public static String formatGitlabFilePath(String path) throws Exception {
 		String formattedPath;
 		formattedPath = path.startsWith("/") ? path.substring(1) : path;
 		formattedPath = path.endsWith("/") ? path.substring(0, path.length() - 2) : path;
@@ -44,8 +43,8 @@ public class URLUtil {
 		builder.append(Plugin.getInstance().getConfig().getString("access-token"));
 		return builder.toString();
 	}
-	
-	public static String formatGitlabFolderPath(String path) {
+
+	public static String formatGitlabFolderPath(String path) throws Exception {
 		String formattedPath;
 		formattedPath = path.startsWith("/") ? path.substring(1) : path;
 		formattedPath = path.endsWith("/") ? path.substring(0, path.length() - 2) : path;
@@ -59,6 +58,24 @@ public class URLUtil {
 		builder.append("&private_token=");
 		builder.append(Plugin.getInstance().getConfig().getString("access-token"));
 		return builder.toString();
+	}
+	
+	public static void writeToFile(File file, String data) throws Exception {
+		if (!file.exists()) {
+			file.createNewFile();
+		}
+		PrintWriter writer = new PrintWriter(file);	
+		writer.print(data);
+		writer.close();
+	}
+
+	public static File getSubFolder(File folder, String subfolder) {
+		for (File file : folder.listFiles()) {
+			if (file.getName().equalsIgnoreCase(subfolder)) {
+				return file;
+			}
+		}
+		return null;
 	}
 
 }
