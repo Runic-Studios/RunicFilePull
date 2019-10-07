@@ -32,7 +32,10 @@ public class CommandFilePull implements CommandExecutor {
 					quest.delete();
 				}
 			}
-			JSONArray array = getJSONArrayFromURL("https://api.github.com/repos/" + "" + "/" + "" + "/contents/" + "");
+			JSONArray array = getJSONArrayFromURL("https://api.github.com/repos/" + 
+					Plugin.getInstance().getConfig().getString("github.user") + "/" + 
+					Plugin.getInstance().getConfig().getString("github.repo") + "/contents/" + 
+					Plugin.getInstance().getConfig().getString("github.quests-folder"));
 			for (int i = 0; i < array.size(); i++) {
 				JSONObject object = (JSONObject) array.get(i);
 				if (((String) object.get("type")).equalsIgnoreCase("file")) {
@@ -53,7 +56,7 @@ public class CommandFilePull implements CommandExecutor {
 		sender.sendMessage(ChatColor.GREEN + "Successfully loaded quest files from github!");
 		return true;
 	}
-	
+
 	private static JSONArray getJSONArrayFromURL(String urlString) throws Exception {
 		URL url = new URL(urlString);
 		String data = IOUtils.toString(url.openStream());
