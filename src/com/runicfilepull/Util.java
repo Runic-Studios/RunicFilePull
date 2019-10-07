@@ -2,12 +2,14 @@ package com.runicfilepull;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+
+import org.bukkit.Bukkit;
 
 public class Util {
 
@@ -23,6 +25,7 @@ public class Util {
 		String inputLine;
 		while ((inputLine = reader.readLine()) != null) {
 			response.append(inputLine);
+			response.append("\n");
 		}
 		reader.close();
 		return response.toString();
@@ -64,15 +67,25 @@ public class Util {
 		if (!file.exists()) {
 			file.createNewFile();
 		}
-		PrintWriter writer = new PrintWriter(file);	
-		writer.print(data);
-		writer.close();
+		FileOutputStream outputStream = new FileOutputStream(file);
+	    byte[] strToBytes = data.getBytes();
+	    outputStream.write(strToBytes);
+	    outputStream.close();
 	}
 
 	public static File getSubFolder(File folder, String subfolder) {
 		for (File file : folder.listFiles()) {
 			if (file.getName().equalsIgnoreCase(subfolder)) {
 				return file;
+			}
+		}
+		return null;
+	}
+	
+	public static org.bukkit.plugin.Plugin getPlugin(String name) {
+		for (org.bukkit.plugin.Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
+			if (plugin.getName().equalsIgnoreCase(name)) {
+				return plugin;
 			}
 		}
 		return null;

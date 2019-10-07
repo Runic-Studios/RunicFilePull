@@ -10,6 +10,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import com.rylinaux.plugman.util.PluginUtil;
+
 public class CommandFilePull implements CommandExecutor {
 
 	@Override
@@ -37,6 +39,7 @@ public class CommandFilePull implements CommandExecutor {
 					Util.writeToFile(new File(questFolder, (String) object.get("name")), Util.getDataFromURL(fileURL));
 				} 
 			}
+			PluginUtil.reload(Util.getPlugin("RunicQuests"));
 		} catch (Exception exception) {
 			sender.sendMessage(ChatColor.RED + "There was an issue getting the files from the github repo. Refer to console for more information.");
 			exception.printStackTrace();
