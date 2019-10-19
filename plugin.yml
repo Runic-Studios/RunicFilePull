@@ -2,7 +2,7 @@ name: RunicFilePull
 description: Runic Realms File Pull, By Excel
 version: 1.0
 main: com.runicfilepull.Plugin
-#depend: [Plugman, RunicQuests, MythicMobs]
+depend: [Plugman, RunicQuests, MythicMobs]
 commands:
   filepull:
     description: Pulls files from the RR GitHub

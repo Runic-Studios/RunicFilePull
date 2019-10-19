@@ -17,6 +17,7 @@ public class CommandFilePull implements CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		try {
+			sender.sendMessage(ChatColor.GREEN + "Downloading quests from Github...");
 			File runicFolder = Util.getSubFolder(Plugin.getInstance().getDataFolder().getParentFile(), "RunicQuests");
 			if (!runicFolder.exists()) {
 				runicFolder.mkdirs();
@@ -30,22 +31,48 @@ public class CommandFilePull implements CommandExecutor {
 					quest.delete();
 				}
 			}
-			String folderURL = Util.formatGitlabFolderPath(Plugin.getInstance().getConfig().getString("quests-path"));
-			JSONArray array = (JSONArray) (new JSONParser()).parse(Util.getDataFromURL(folderURL));
-			for (int i = 0; i < array.size(); i++) {
-				JSONObject object = (JSONObject) array.get(i);
+			sender.sendMessage(ChatColor.GREEN + "Writing quests to file...");
+			String questsFolderURL = Util.formatGitlabFolderPath(Plugin.getInstance().getConfig().getString("quests-path"));
+			JSONArray quests = (JSONArray) (new JSONParser()).parse(Util.getDataFromURL(questsFolderURL));
+			for (int i = 0; i < quests.size(); i++) {
+				JSONObject object = (JSONObject) quests.get(i);
 				if (((String) object.get("type")).equalsIgnoreCase("blob")) {
 					String fileURL = Util.formatGitlabFilePath((String) object.get("path"));
 					Util.writeToFile(new File(questFolder, (String) object.get("name")), Util.getDataFromURL(fileURL));
 				} 
 			}
 			PluginUtil.reload(Util.getPlugin("RunicQuests"));
+			sender.sendMessage(ChatColor.GREEN + "Downloading mobs from Github...");
+			File mmFolder = Util.getSubFolder(Plugin.getInstance().getDataFolder().getParentFile(), "MythicMobs");
+			if (!mmFolder.exists()) {
+				mmFolder.mkdirs();
+			}
+			File mobsFolder = Util.getSubFolder(mmFolder, "Mobs");
+			if (!mobsFolder.exists()) {
+				mobsFolder.mkdirs();
+			}
+			for (File mob : mobsFolder.listFiles()) {
+				if (mob.isFile()) {
+					mob.delete();
+				}
+			}
+			sender.sendMessage(ChatColor.GREEN + "Writing mobs to file...");
+			String mobsFolderURL = Util.formatGitlabFolderPath(Plugin.getInstance().getConfig().getString("mobs-path"));
+			JSONArray mobs = (JSONArray) (new JSONParser()).parse(Util.getDataFromURL(mobsFolderURL));
+			for (int i = 0; i < mobs.size(); i++) {
+				JSONObject object = (JSONObject) mobs.get(i);
+				if (((String) object.get("type")).equalsIgnoreCase("blob")) {
+					String fileURL = Util.formatGitlabFilePath((String) object.get("path"));
+					Util.writeToFile(new File(mobsFolder, (String) object.get("name")), Util.getDataFromURL(fileURL));
+				}
+			}
+			PluginUtil.reload(Util.getPlugin("MythicMobs"));
 		} catch (Exception exception) {
 			sender.sendMessage(ChatColor.RED + "There was an issue getting the files from the github repo. Refer to console for more information.");
 			exception.printStackTrace();
 			return true;
 		}
-		sender.sendMessage(ChatColor.GREEN + "Successfully loaded quest files from github!");
+		sender.sendMessage(ChatColor.GREEN + "Successfully loaded files from github!");
 		return true;
 	}
 
