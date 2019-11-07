@@ -1,4 +1,4 @@
-package com.runicfilepull;
+package com.runicrealms.runicfilepull;
 
 import java.io.File;
 

@@ -1,4 +1,4 @@
-package com.runicfilepull;
+package com.runicrealms.runicfilepull;
 
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
