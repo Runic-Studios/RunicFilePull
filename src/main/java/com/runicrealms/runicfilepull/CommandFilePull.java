@@ -85,6 +85,25 @@ public class CommandFilePull implements CommandExecutor {
 					Util.writeToFile(new File(itemsFolder, (String) object.get("name")), Util.getDataFromURL(fileURL));
 				}
 			}
+			File skillsFolder = Util.getSubFolder(mmFolder, "Skills");
+			if (!skillsFolder.exists()) {
+				skillsFolder.mkdirs();
+			}
+			for (File item : skillsFolder.listFiles()) {
+				if (item.isFile()) {
+					item.delete();
+				}
+			}
+			sender.sendMessage(ChatColor.GREEN + "Writing skills to file...");
+			String skillsFolderURL = Util.formatGitlabFolderPath(Plugin.getInstance().getConfig().getString("skills-path"));
+			JSONArray skills = (JSONArray) (new JSONParser()).parse(Util.getDataFromURL(skillsFolderURL));
+			for (int i = 0; i < skills.size(); i++) {
+				JSONObject object = (JSONObject) skills.get(i);
+				if (((String) object.get("type")).equalsIgnoreCase("blob")) {
+					String fileURL = Util.formatGitlabFilePath((String) object.get("path"));
+					Util.writeToFile(new File(itemsFolder, (String) object.get("name")), Util.getDataFromURL(fileURL));
+				}
+			}
 			PluginUtil.reload(Util.getPlugin("MythicMobs"));
 		} catch (Exception exception) {
 			sender.sendMessage(ChatColor.RED + "There was an issue getting the files from the github repo. Refer to console for more information.");
