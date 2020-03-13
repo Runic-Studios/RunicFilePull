@@ -2,6 +2,7 @@ package com.runicrealms.runicfilepull;
 
 import java.io.File;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -101,10 +102,11 @@ public class CommandFilePull implements CommandExecutor {
 				JSONObject object = (JSONObject) skills.get(i);
 				if (((String) object.get("type")).equalsIgnoreCase("blob")) {
 					String fileURL = Util.formatGitlabFilePath((String) object.get("path"));
-					Util.writeToFile(new File(itemsFolder, (String) object.get("name")), Util.getDataFromURL(fileURL));
+					Util.writeToFile(new File(skillsFolder, (String) object.get("name")), Util.getDataFromURL(fileURL));
 				}
 			}
-			PluginUtil.reload(Util.getPlugin("MythicMobs"));
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mm reload");
+			//PluginUtil.reload(Util.getPlugin("MythicMobs"));
 		} catch (Exception exception) {
 			sender.sendMessage(ChatColor.RED + "There was an issue getting the files from the github repo. Refer to console for more information.");
 			exception.printStackTrace();
