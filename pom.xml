@@ -41,17 +41,8 @@
 							<createDependencyReducedPom>false</createDependencyReducedPom>
 							<artifactSet>
 								<includes>
-                                    <include>org.kohsuke:github-api</include>
-									<include>com.fasterxml.jackson.core:jackson-databind</include>
-									<include>com.fasterxml.jackson.core:jackson-core</include>
-									<include>com.fasterxml.jackson.core:jackson-annotations</include>
 									<include>commons-io:commons-io</include>
-									<include>org.apache.commons:commons-lang3</include>
-<!--									<include>com.infradna.tool:bridge-method-annotation</include>-->
-									<include>com.squareup.okhttp:okttp-urlconnection</include>
-									<include>com.squareup.okhttp3:okhttp</include>
-									<include>com.squareup.okhttp3:okhttp-urlconnection</include>
-									<include>com.squareup.okio:okio</include>
+									<include>org.apache.httpcomponents:httpcomponents</include>
 								</includes>
 							</artifactSet>
 						</configuration>
@@ -101,50 +92,15 @@
 			<id>papermc</id>
 			<url>https://papermc.io/repo/repository/maven-public/</url>
 		</repository>
-		<!-- Github API -->
+		<!-- HTTP Components -->
 		<repository>
-			<id>github-api</id>
-			<url>https://mvnrepository.com/artifact/org.kohsuke/github-api</url>
-		</repository>
-		<!-- faster XML -->
-		<repository>
-			<id>faster-xml</id>
-			<url>https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind</url>
+			<id>http-components</id>
+			<url>https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient</url>
 		</repository>
 		<!-- Commons IO -->
 		<repository>
 			<id>commons-io</id>
 			<url>https://mvnrepository.com/artifact/commons-io/commons-io</url>
-		</repository>
-		<!-- Commons Lang3 -->
-		<repository>
-			<id>commons-lang3</id>
-			<url>https://mvnrepository.com/artifact/org.apache.commons/commons-lang3</url>
-		</repository>
-		<!-- Bridge Method Annotation -->
-<!--		<repository>-->
-<!--			<id>bridge-method-annotation</id>-->
-<!--			<url>https://mvnrepository.com/artifact/com.infradna.tool/bridge-method-annotation</url>-->
-<!--		</repository>-->
-		<!-- OkHTTP URL Connection -->
-		<repository>
-			<id>okhttp-url-connection</id>
-			<url>https://mvnrepository.com/artifact/com.squareup.okhttp/okhttp-urlconnection</url>
-		</repository>
-		<!-- OkHTTP3 -->
-		<repository>
-			<id>okhttp</id>
-			<url>https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp</url>
-		</repository>
-		<!-- OkHTTP3 URL Connection -->
-		<repository>
-			<id>okhttp3-url-connection</id>
-			<url>https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp-urlconnection</url>
-		</repository>
-		<!-- Okio -->
-		<repository>
-			<id>okio</id>
-			<url>https://mvnrepository.com/artifact/com.squareup.okio/okio</url>
 		</repository>
 	</repositories>
 	<dependencies>
@@ -162,71 +118,17 @@
 			<version>1.13.2-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
-		<!-- GitHub API -->
+		<!-- HTTP Components -->
 		<dependency>
-			<groupId>org.kohsuke</groupId>
-			<artifactId>github-api</artifactId>
-			<version>1.111</version>
-		</dependency>
-		<!-- faster XML -->
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>2.10.2</version>
-		</dependency>
-		<!-- faster XML -->
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-			<version>2.10.2</version>
-		</dependency>
-		<!-- faster XML -->
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-annotations</artifactId>
-			<version>2.10.2</version>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5.10</version>
 		</dependency>
 		<!-- Commons IO -->
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.4</version>
-		</dependency>
-		<!-- Commons Lang3 -->
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>3.9</version>
-		</dependency>
-		<!-- Bridge Method Annotation -->
-<!--		<dependency>-->
-<!--			<groupId>com.infradna.tool</groupId>-->
-<!--			<artifactId>bridge-method-annotation</artifactId>-->
-<!--			<version>1.18</version>-->
-<!--		</dependency>-->
-		<!-- OkHTTP URL Connection -->
-		<dependency>
-			<groupId>com.squareup.okhttp</groupId>
-			<artifactId>okhttp-urlconnection</artifactId>
-			<version>2.7.5</version>
-		</dependency>
-		<!-- OkHTTP3 -->
-		<dependency>
-			<groupId>com.squareup.okhttp3</groupId>
-			<artifactId>okhttp</artifactId>
-			<version>4.4.1</version>
-		</dependency>
-		<!-- OkHTTP3 URL Connection -->
-		<dependency>
-			<groupId>com.squareup.okhttp3</groupId>
-			<artifactId>okhttp-urlconnection</artifactId>
-			<version>3.12.3</version>
-		</dependency>
-		<!-- Okio -->
-		<dependency>
-			<groupId>com.squareup.okio</groupId>
-			<artifactId>okio</artifactId>
-			<version>2.5.0</version>
 		</dependency>
 	</dependencies>
 </project>
