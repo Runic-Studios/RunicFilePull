@@ -27,6 +27,7 @@ public class Plugin extends JavaPlugin implements CommandExecutor {
 
 	private static volatile Integer totalFiles = 0;
 	private static volatile Integer filesCompleted = 0;
+	private static volatile Integer downloadsStarted = 0;
 	
 	@Override
 	public void onEnable() {
@@ -58,21 +59,26 @@ public class Plugin extends JavaPlugin implements CommandExecutor {
 			new BukkitRunnable() {
 				@Override
 				public void run() {
-					if (totalFiles != 0) {
+					if (downloadsStarted == 5) {
 						if (filesCompleted >= totalFiles) {
 							Bukkit.broadcastMessage(ChatColor.GREEN + "Done! " + ChatColor.DARK_RED + "Server restarting in " + ChatColor.RED + "5" + ChatColor.DARK_RED + " seconds");
 							Bukkit.getScheduler().runTaskLater(Plugin.this, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rstop"), 5 * 20);
+							Bukkit.getOnlinePlayers().forEach(player -> player.sendTitle("", ChatColor.DARK_RED + "Restarting in " + ChatColor.RED + "5" + ChatColor.DARK_RED + "...", 0, 40 , 0));
+							Bukkit.getScheduler().runTaskLater(Plugin.this, () -> Bukkit.getOnlinePlayers().forEach(player -> player.sendTitle("", ChatColor.DARK_RED + "Restarting in " + ChatColor.RED + "4" + ChatColor.DARK_RED + "...", 0, 40 , 0)), 20L * 1);
+							Bukkit.getScheduler().runTaskLater(Plugin.this, () -> Bukkit.getOnlinePlayers().forEach(player -> player.sendTitle("", ChatColor.DARK_RED + "Restarting in " + ChatColor.RED + "3" + ChatColor.DARK_RED + "...", 0, 40 , 0)), 20L * 2);
+							Bukkit.getScheduler().runTaskLater(Plugin.this, () -> Bukkit.getOnlinePlayers().forEach(player -> player.sendTitle("", ChatColor.DARK_RED + "Restarting in " + ChatColor.RED + "2" + ChatColor.DARK_RED + "...", 0, 40 , 0)), 20L * 3);
+							Bukkit.getScheduler().runTaskLater(Plugin.this, () -> Bukkit.getOnlinePlayers().forEach(player -> player.sendTitle("", ChatColor.DARK_RED + "Restarting in " + ChatColor.RED + "1" + ChatColor.DARK_RED + "...", 0, 40 , 0)), 20L * 4);
 							this.cancel();
 							return;
 						}
 						double percentage = Math.round(((100.0 * filesCompleted) / totalFiles * 1.0) * 10.0) / 10.0;
 						for (Player player : Bukkit.getOnlinePlayers()) {
-							player.sendTitle("", ChatColor.GREEN + "File Pull: " + percentage + "%", 0, 40, 0);
+							player.sendTitle("", ChatColor.GREEN + "File Pull: " + ChatColor.YELLOW + percentage + "%", 0, 40, 0);
 						}
 						Bukkit.getLogger().log(Level.INFO, "[RunicFilePull] File Pull Progress: " + percentage + "%");
 					} else {
 						for (Player player : Bukkit.getOnlinePlayers()) {
-							player.sendTitle("", ChatColor.GREEN + "File Pull: Loading...", 0, 40, 0);
+							player.sendTitle("", ChatColor.GREEN + "File Pull: " + ChatColor.YELLOW + "Loading" + ChatColor.GREEN + "...", 0, 40, 0);
 						}
 						Bukkit.getLogger().log(Level.INFO, "[RunicFilePull] File Pull Progress: Loading...");
 					}
@@ -98,6 +104,7 @@ public class Plugin extends JavaPlugin implements CommandExecutor {
 	public static void mirrorFiles(String ghPath, String localPath) throws Exception {
 		JSONArray files = (JSONArray) (new JSONParser()).parse(getWithAuth("https://api.github.com/repos/Skyfallin/writer-files/contents/" + ghPath, "runicrealmsgithub:runicrealmsPASSWORD"));
 		totalFiles += files.size();
+		downloadsStarted++;
 		File destination = new File(Plugin.getInstance().getDataFolder().getParent(), localPath);
 		if (!destination.exists()) {
 			destination.mkdirs();
