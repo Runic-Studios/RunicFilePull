@@ -1,0 +1,5 @@
+mobs: true
+skills: true
+spawners: true
+items: true
+quests: true
