@@ -9,7 +9,7 @@ public class FilePullCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof Player) {
+        if (sender instanceof Player && sender.isOp()) {
             FilePullGui.open((Player) sender);
         } else {
             sender.sendMessage("You cannot run this command from console!");
