@@ -27,9 +27,9 @@ public class FilePullGui implements Listener {
         inventory.setItem(2, FilePull.isFolderEnabled(FilePullFolder.SKILLS) ?
                 buildIcon(Material.GREEN_STAINED_GLASS, "&6Skills: &r&2&lENABLED", new String[] {"&7Click to disabled"}) :
                 buildIcon(Material.RED_STAINED_GLASS, "&6Skills: &r&c&lDISABLED", new String[] {"&7Click to enable"}));
-        inventory.setItem(4, FilePull.isFolderEnabled(FilePullFolder.SPAWNERS) ?
-                buildIcon(Material.GREEN_STAINED_GLASS, "&6Spawners: &r&2&lENABLED", new String[] {"&7Click to disabled"}) :
-                buildIcon(Material.RED_STAINED_GLASS, "&6Spawners: &r&c&lDISABLED", new String[] {"&7Click to enable"}));
+        inventory.setItem(4, FilePull.isFolderEnabled(FilePullFolder.RUNIC_ITEMS) ?
+                buildIcon(Material.GREEN_STAINED_GLASS, "&6Runic Items: &r&2&lENABLED", new String[] {"&7Click to disabled", "&4Coming Soon"}) :
+                buildIcon(Material.RED_STAINED_GLASS, "&6Runic Items: &r&c&lDISABLED", new String[] {"&7Click to enable", "&4Coming Soon"}));
         inventory.setItem(6, FilePull.isFolderEnabled(FilePullFolder.ITEMS) ?
                 buildIcon(Material.GREEN_STAINED_GLASS, "&6Items: &r&2&lENABLED", new String[] {"&7Click to disabled"}) :
                 buildIcon(Material.RED_STAINED_GLASS, "&6Items: &r&c&lDISABLED", new String[] {"&7Click to enable"}));
@@ -41,42 +41,41 @@ public class FilePullGui implements Listener {
         player.openInventory(inventory);
     }
 
-    @SuppressWarnings("deprecation")
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getWhoClicked() instanceof Player) {
             if (viewers.contains(event.getWhoClicked().getUniqueId())) {
                 if (event.getRawSlot() < event.getInventory().getSize()) {
                     if (event.getSlot() == 0) {
-                        boolean toggled = FilePull.isFolderEnabled(FilePullFolder.MOBS) ? false : true;
+                        boolean toggled = !FilePull.isFolderEnabled(FilePullFolder.MOBS);
                         FilePull.setFolderEnabled(FilePullFolder.MOBS, toggled);
                         Plugin.getInstance().getConfig().set("mobs", toggled);
                         Plugin.getInstance().saveConfig();
                         event.getWhoClicked().closeInventory();
                         open((Player) event.getWhoClicked());
                     } else if (event.getSlot() == 2) {
-                        boolean toggled = FilePull.isFolderEnabled(FilePullFolder.SKILLS) ? false : true;
+                        boolean toggled = !FilePull.isFolderEnabled(FilePullFolder.SKILLS);
                         FilePull.setFolderEnabled(FilePullFolder.SKILLS, toggled);
                         Plugin.getInstance().getConfig().set("skills", toggled);
                         Plugin.getInstance().saveConfig();
                         event.getWhoClicked().closeInventory();
                         open((Player) event.getWhoClicked());
                     } else if (event.getSlot() == 4) {
-                        boolean toggled = FilePull.isFolderEnabled(FilePullFolder.SPAWNERS) ? false : true;
-                        FilePull.setFolderEnabled(FilePullFolder.SPAWNERS, toggled);
-                        Plugin.getInstance().getConfig().set("spawners", toggled);
+                        boolean toggled = !FilePull.isFolderEnabled(FilePullFolder.RUNIC_ITEMS);
+                        FilePull.setFolderEnabled(FilePullFolder.RUNIC_ITEMS, toggled);
+                        Plugin.getInstance().getConfig().set("runicitems", toggled);
                         Plugin.getInstance().saveConfig();
                         event.getWhoClicked().closeInventory();
                         open((Player) event.getWhoClicked());
                     } else if (event.getSlot() == 6) {
-                        boolean toggled = FilePull.isFolderEnabled(FilePullFolder.ITEMS) ? false : true;
+                        boolean toggled = !FilePull.isFolderEnabled(FilePullFolder.ITEMS);
                         FilePull.setFolderEnabled(FilePullFolder.ITEMS, toggled);
                         Plugin.getInstance().getConfig().set("items", toggled);
                         Plugin.getInstance().saveConfig();
                         event.getWhoClicked().closeInventory();
                         open((Player) event.getWhoClicked());
                     } else if (event.getSlot() == 8) {
-                        boolean toggled = FilePull.isFolderEnabled(FilePullFolder.QUESTS) ? false : true;
+                        boolean toggled = !FilePull.isFolderEnabled(FilePullFolder.QUESTS);
                         FilePull.setFolderEnabled(FilePullFolder.QUESTS, toggled);
                         Plugin.getInstance().getConfig().set("quests", toggled);
                         Plugin.getInstance().saveConfig();
@@ -85,7 +84,7 @@ public class FilePullGui implements Listener {
                     } else if (event.getSlot() == 13) {
                         if (FilePull.isFolderEnabled(FilePullFolder.MOBS) ||
                                 FilePull.isFolderEnabled(FilePullFolder.SKILLS) ||
-                                FilePull.isFolderEnabled(FilePullFolder.SPAWNERS) ||
+                                FilePull.isFolderEnabled(FilePullFolder.RUNIC_ITEMS) ||
                                 FilePull.isFolderEnabled(FilePullFolder.ITEMS) ||
                                 FilePull.isFolderEnabled(FilePullFolder.QUESTS)) {
                             event.getWhoClicked().closeInventory();

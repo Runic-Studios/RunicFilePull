@@ -4,7 +4,7 @@ public enum FilePullFolder {
 
     MOBS("MythicMobs/Mobs", "mobs"),
     SKILLS("MythicMobs/Skills", "skills"),
-    SPAWNERS("MythicMobs/Spawners", "spawners"),
+    RUNIC_ITEMS("RunicItems/items", "runicitems"),
     ITEMS("MythicMobs/Items", "items"),
     QUESTS("RunicQuests/quests", "quests");
 

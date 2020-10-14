@@ -1,5 +1,5 @@
 mobs: true
 skills: true
-spawners: true
+runicitems: true
 items: true
 quests: true

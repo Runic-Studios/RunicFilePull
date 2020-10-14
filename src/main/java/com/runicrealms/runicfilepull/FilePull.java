@@ -65,7 +65,7 @@ public class FilePull {
                 public void run() {
                     if (downloadsStarted == downloadsNeeded) {
                         if (filesCompleted >= totalFiles) {
-                            if (folders.get(FilePullFolder.QUESTS)) {
+                            if (folders.get(FilePullFolder.QUESTS) || folders.get(FilePullFolder.RUNIC_ITEMS)) {
                                 Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> {reset(); Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rstop");}, 5 * 20);
                                 Bukkit.getOnlinePlayers().forEach(player -> player.sendTitle("", ChatColor.GREEN + "Done! " + ChatColor.DARK_RED + "Restarting in " + ChatColor.RED + "5" + ChatColor.DARK_RED + "...", 0, 40, 0));
                                 Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> Bukkit.getOnlinePlayers().forEach(player -> player.sendTitle("", ChatColor.DARK_RED + "Restarting in " + ChatColor.RED + "4" + ChatColor.DARK_RED + "...", 0, 40, 0)), 20L * 1);
