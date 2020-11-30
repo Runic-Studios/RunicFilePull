@@ -114,7 +114,8 @@ public class FilePull {
     }
 
     private static void mirrorFiles(String ghPath, String localPath) throws Exception {
-        JSONArray files = (JSONArray) (new JSONParser()).parse(getWithAuth("https://api.github.com/repos/Skyfallin/writer-files/contents/" + ghPath, "runicrealmsgithub:runicrealmsPASSWORD"));
+        //JSONArray files = (JSONArray) (new JSONParser()).parse(getWithAuth("https://api.github.com/repos/Skyfallin/writer-files/contents/" + ghPath, "runicrealmsgithub:runicrealmsPASSWORD"));
+        JSONArray files = (JSONArray) (new JSONParser()).parse(getWithAuth("https://api.github.com/repos/Skyfallin/writer-files/contents/" + ghPath, "47a7bcf0b66a78f709f7b39d416f78ef092f9564"));
         totalFiles += files.size();
         downloadsStarted++;
         File destination = new File(Plugin.getInstance().getDataFolder().getParent(), localPath);
@@ -128,7 +129,8 @@ public class FilePull {
         }
         for (Object object : files.toArray()) {
             File localFile = new File(destination, (String) ((JSONObject) object).get("name"));
-            JSONObject gitJson = (JSONObject) (new JSONParser()).parse(getWithAuth((String) ((JSONObject) object).get("url"), "runicrealmsgithub:runicrealmsPASSWORD"));
+            //JSONObject gitJson = (JSONObject) (new JSONParser()).parse(getWithAuth((String) ((JSONObject) object).get("url"), "runicrealmsgithub:runicrealmsPASSWORD"));
+            JSONObject gitJson = (JSONObject) (new JSONParser()).parse(getWithAuth((String) ((JSONObject) object).get("url"), "47a7bcf0b66a78f709f7b39d416f78ef092f9564"));
             writeBase64ToFile((String) gitJson.get("content"), localFile);
             filesCompleted++;
         }
@@ -138,7 +140,8 @@ public class FilePull {
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.setRequestMethod("GET");
         connection.setDoOutput(true);
-        connection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8)));
+        //connection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8)));
+        connection.setRequestProperty("Authorization", "token " + auth);
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         String output = "";
         String line;
