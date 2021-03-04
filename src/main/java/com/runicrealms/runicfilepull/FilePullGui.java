@@ -28,8 +28,8 @@ public class FilePullGui implements Listener {
                 buildIcon(Material.GREEN_STAINED_GLASS, "&6Skills: &r&2&lENABLED", new String[] {"&7Click to disabled"}) :
                 buildIcon(Material.RED_STAINED_GLASS, "&6Skills: &r&c&lDISABLED", new String[] {"&7Click to enable"}));
         inventory.setItem(4, FilePull.isFolderEnabled(FilePullFolder.RUNIC_ITEMS) ?
-                buildIcon(Material.GREEN_STAINED_GLASS, "&6Runic Items: &r&2&lENABLED", new String[] {"&7Click to disabled", "&4Coming Soon"}) :
-                buildIcon(Material.RED_STAINED_GLASS, "&6Runic Items: &r&c&lDISABLED", new String[] {"&7Click to enable", "&4Coming Soon"}));
+                buildIcon(Material.GREEN_STAINED_GLASS, "&6Runic Items: &r&2&lENABLED", new String[] {"&7Click to disabled"}) :
+                buildIcon(Material.RED_STAINED_GLASS, "&6Runic Items: &r&c&lDISABLED", new String[] {"&7Click to enable"}));
         inventory.setItem(6, FilePull.isFolderEnabled(FilePullFolder.ITEMS) ?
                 buildIcon(Material.GREEN_STAINED_GLASS, "&6Items: &r&2&lENABLED", new String[] {"&7Click to disabled"}) :
                 buildIcon(Material.RED_STAINED_GLASS, "&6Items: &r&c&lDISABLED", new String[] {"&7Click to enable"}));
