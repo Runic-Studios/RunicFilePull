@@ -23,6 +23,10 @@ import java.util.logging.Level;
 
 public class FilePull {
 
+    // runicrealmsgithub:runicrealmsPASSWORD
+
+    private static final String AUTH_TOKEN = "47a7bcf0b66a78f709f7b39d416f78ef092f9564";
+
     private static Map<FilePullFolder, Boolean> folders = new HashMap<FilePullFolder, Boolean>();
 
     private static boolean isRunning = false;
@@ -57,7 +61,7 @@ public class FilePull {
             for (FilePullFolder folder : FilePullFolder.values()) {
                 if (folders.get(folder) == true) {
                     downloadsNeeded++;
-                    Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {try {mirrorFiles(folder.getGithubPath(), folder.getLocalPath());} catch (Exception exception) {Bukkit.broadcastMessage(ChatColor.RED + "There was an issue downloading the " + folder.getGithubPath() + "! Check the console for more information. Some files may be be missing."); exception.printStackTrace();}});
+                    Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {try {mirrorFiles(folder);} catch (Exception exception) {Bukkit.broadcastMessage(ChatColor.RED + "There was an issue downloading the " + folder.getGithubPath() + "! Check the console for more information. Some files may be be missing."); exception.printStackTrace();}});
                 }
             }
             new BukkitRunnable() {
@@ -104,21 +108,23 @@ public class FilePull {
     }
 
     private static void writeBase64ToFile(String base64, File file) throws Exception {
-        base64 = base64.replaceAll("\\n", "");
-        while (base64.length() % 4 > 0) {
-            base64 += '=';
+        StringBuilder base64Builder = new StringBuilder(base64.replaceAll("\\n", ""));
+        while (base64Builder.length() % 4 > 0) {
+            base64Builder.append('=');
         }
+        base64 = base64Builder.toString();
         PrintWriter writer = new PrintWriter(file);
         writer.print(Base64Coder.decodeString(base64));
         writer.close();
     }
 
-    private static void mirrorFiles(String ghPath, String localPath) throws Exception {
-        //JSONArray files = (JSONArray) (new JSONParser()).parse(getWithAuth("https://api.github.com/repos/Skyfallin/writer-files/contents/" + ghPath, "runicrealmsgithub:runicrealmsPASSWORD"));
-        JSONArray files = (JSONArray) (new JSONParser()).parse(getWithAuth("https://api.github.com/repos/Skyfallin/writer-files/contents/" + ghPath, "47a7bcf0b66a78f709f7b39d416f78ef092f9564"));
+    private static void mirrorFiles(FilePullFolder folder) throws Exception {
+        JSONObject tree = (JSONObject) (new JSONParser()).parse(getWithAuth("https://api.github.com/repos/Skyfallin/writer-files/git/trees/" + folder.getTreeSha()));
+        JSONArray files = (JSONArray) tree.get("tree");
+        //JSONArray files = (JSONArray) (new JSONParser()).parse(getWithAuth("https://api.github.com/repos/Skyfallin/writer-files/contents/" + ghPath, "47a7bcf0b66a78f709f7b39d416f78ef092f9564"));
         totalFiles += files.size();
         downloadsStarted++;
-        File destination = new File(Plugin.getInstance().getDataFolder().getParent(), localPath);
+        File destination = new File(Plugin.getInstance().getDataFolder().getParent(), folder.getLocalPath());
         if (!destination.exists()) {
             destination.mkdirs();
         }
@@ -128,27 +134,28 @@ public class FilePull {
             }
         }
         for (Object object : files.toArray()) {
-            File localFile = new File(destination, (String) ((JSONObject) object).get("name"));
-            //JSONObject gitJson = (JSONObject) (new JSONParser()).parse(getWithAuth((String) ((JSONObject) object).get("url"), "runicrealmsgithub:runicrealmsPASSWORD"));
-            JSONObject gitJson = (JSONObject) (new JSONParser()).parse(getWithAuth((String) ((JSONObject) object).get("url"), "47a7bcf0b66a78f709f7b39d416f78ef092f9564"));
-            writeBase64ToFile((String) gitJson.get("content"), localFile);
-            filesCompleted++;
+            JSONObject jsonObject = ((JSONObject) object);
+            if (jsonObject.get("type").equals("blob") && ((String) jsonObject.get("path")).endsWith(".yml")) {
+                File localFile = new File(destination, (String) jsonObject.get("path"));
+                JSONObject gitJson = (JSONObject) (new JSONParser()).parse(getWithAuth((String) ((JSONObject) object).get("url")));
+                writeBase64ToFile((String) gitJson.get("content"), localFile);
+                filesCompleted++;
+            }
         }
     }
 
-    private static String getWithAuth(String url, String auth) throws Exception {
+    private static String getWithAuth(String url) throws Exception {
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.setRequestMethod("GET");
         connection.setDoOutput(true);
-        //connection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8)));
-        connection.setRequestProperty("Authorization", "token " + auth);
+        connection.setRequestProperty("Authorization", "token " + AUTH_TOKEN);
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String output = "";
+        StringBuilder output = new StringBuilder();
         String line;
         while ((line = reader.readLine()) != null) {
-            output += line + "\n";
+            output.append(line).append("\n");
         }
-        return output;
+        return output.toString();
     }
 
 }
