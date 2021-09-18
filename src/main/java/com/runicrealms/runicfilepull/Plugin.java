@@ -15,7 +15,7 @@ public class Plugin extends JavaPlugin {
 		FilePull.setFolderEnabled(FilePullFolder.MOBS, this.getConfig().getBoolean("mobs"));
 		FilePull.setFolderEnabled(FilePullFolder.SKILLS, this.getConfig().getBoolean("skills"));
 		FilePull.setFolderEnabled(FilePullFolder.RUNIC_ITEMS, this.getConfig().getBoolean("runicitems"));
-		FilePull.setFolderEnabled(FilePullFolder.ITEMS, this.getConfig().getBoolean("items"));
+		FilePull.setFolderEnabled(FilePullFolder.SCRIPT_ITEMS, this.getConfig().getBoolean("scriptitems"));
 		FilePull.setFolderEnabled(FilePullFolder.QUESTS, this.getConfig().getBoolean("quests"));
 		Bukkit.getPluginManager().registerEvents(new FilePullGui(), this);
 		FilePullCommand command = new FilePullCommand();

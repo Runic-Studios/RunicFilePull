@@ -15,8 +15,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -27,7 +25,7 @@ public class FilePull {
 
     private static final String AUTH_TOKEN = "47a7bcf0b66a78f709f7b39d416f78ef092f9564";
 
-    private static Map<FilePullFolder, Boolean> folders = new HashMap<FilePullFolder, Boolean>();
+    private static Map<FilePullFolder, Boolean> folders = new HashMap<>();
 
     private static boolean isRunning = false;
     private static volatile Integer totalFiles = 0;
