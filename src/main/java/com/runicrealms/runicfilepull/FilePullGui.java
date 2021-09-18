@@ -53,6 +53,7 @@ public class FilePullGui implements Listener {
                             Plugin.getInstance().getConfig().set("mobs", toggled);
                             Plugin.getInstance().saveConfig();
                         });
+                        event.getWhoClicked().closeInventory();
                         open((Player) event.getWhoClicked());
                     } else if (event.getSlot() == 2) {
                         boolean toggled = !FilePull.isFolderEnabled(FilePullFolder.SKILLS);
@@ -61,6 +62,7 @@ public class FilePullGui implements Listener {
                             Plugin.getInstance().getConfig().set("skills", toggled);
                             Plugin.getInstance().saveConfig();
                         });
+                        event.getWhoClicked().closeInventory();
                         open((Player) event.getWhoClicked());
                     } else if (event.getSlot() == 4) {
                         boolean toggled = !FilePull.isFolderEnabled(FilePullFolder.RUNIC_ITEMS);
@@ -69,6 +71,7 @@ public class FilePullGui implements Listener {
                             Plugin.getInstance().getConfig().set("runicitems", toggled);
                             Plugin.getInstance().saveConfig();
                         });
+                        event.getWhoClicked().closeInventory();
                         open((Player) event.getWhoClicked());
                     } else if (event.getSlot() == 6) {
                         boolean toggled = !FilePull.isFolderEnabled(FilePullFolder.SCRIPT_ITEMS);
@@ -77,6 +80,7 @@ public class FilePullGui implements Listener {
                             Plugin.getInstance().getConfig().set("scriptitems", toggled);
                             Plugin.getInstance().saveConfig();
                         });
+                        event.getWhoClicked().closeInventory();
                         open((Player) event.getWhoClicked());
                     } else if (event.getSlot() == 8) {
                         boolean toggled = !FilePull.isFolderEnabled(FilePullFolder.QUESTS);
