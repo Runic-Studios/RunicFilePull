@@ -3,6 +3,8 @@ package com.runicrealms.runicfilepull;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.logging.Level;
+
 public class Plugin extends JavaPlugin {
 
 	private static Plugin plugin;
@@ -22,6 +24,15 @@ public class Plugin extends JavaPlugin {
 		Bukkit.getPluginCommand("filepull").setExecutor(command);
 		Bukkit.getPluginCommand("pull").setExecutor(command);
 		Bukkit.getPluginCommand("fp").setExecutor(command);
+		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+			try {
+				FilePull.grabTreeShas();
+			} catch (Exception exception) {
+				Bukkit.getLogger().log(Level.SEVERE, "[RunicFilePull] Failed to load TREE_SHAs!");
+				Bukkit.getLogger().log(Level.SEVERE, "[RunicFilePull] Disabling this plugin!");
+				Bukkit.getScheduler().runTask(Plugin.getInstance(), () -> Bukkit.getPluginManager().disablePlugin(Plugin.getInstance()));
+			}
+		});
 	}
 	
 	public static Plugin getInstance() {
