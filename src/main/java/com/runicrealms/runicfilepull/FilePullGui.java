@@ -30,9 +30,9 @@ public class FilePullGui implements Listener {
         inventory.setItem(4, FilePull.isFolderEnabled(FilePullFolder.RUNIC_ITEMS) ?
                 buildIcon(Material.GREEN_STAINED_GLASS, "&6Runic Items: &r&2&lENABLED", new String[] {"&7Click to disabled"}) :
                 buildIcon(Material.RED_STAINED_GLASS, "&6Runic Items: &r&c&lDISABLED", new String[] {"&7Click to enable"}));
-        inventory.setItem(6, FilePull.isFolderEnabled(FilePullFolder.ITEMS) ?
-                buildIcon(Material.GREEN_STAINED_GLASS, "&6Items: &r&2&lENABLED", new String[] {"&7Click to disabled"}) :
-                buildIcon(Material.RED_STAINED_GLASS, "&6Items: &r&c&lDISABLED", new String[] {"&7Click to enable"}));
+        inventory.setItem(6, FilePull.isFolderEnabled(FilePullFolder.SCRIPT_ITEMS) ?
+                buildIcon(Material.GREEN_STAINED_GLASS, "&6Script Items: &r&2&lENABLED", new String[] {"&7Click to disabled"}) :
+                buildIcon(Material.RED_STAINED_GLASS, "&6Script Items: &r&c&lDISABLED", new String[] {"&7Click to enable"}));
         inventory.setItem(8, FilePull.isFolderEnabled(FilePullFolder.QUESTS) ?
                 buildIcon(Material.GREEN_STAINED_GLASS, "&6Quests: &r&2&lENABLED", new String[] {"&7Click to disabled"}) :
                 buildIcon(Material.RED_STAINED_GLASS, "&6Quests: &r&c&lDISABLED", new String[] {"&7Click to enable"}));
@@ -49,43 +49,52 @@ public class FilePullGui implements Listener {
                     if (event.getSlot() == 0) {
                         boolean toggled = !FilePull.isFolderEnabled(FilePullFolder.MOBS);
                         FilePull.setFolderEnabled(FilePullFolder.MOBS, toggled);
-                        Plugin.getInstance().getConfig().set("mobs", toggled);
-                        Plugin.getInstance().saveConfig();
+                        Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
+                            Plugin.getInstance().getConfig().set("mobs", toggled);
+                            Plugin.getInstance().saveConfig();
+                        });
                         event.getWhoClicked().closeInventory();
                         open((Player) event.getWhoClicked());
                     } else if (event.getSlot() == 2) {
                         boolean toggled = !FilePull.isFolderEnabled(FilePullFolder.SKILLS);
                         FilePull.setFolderEnabled(FilePullFolder.SKILLS, toggled);
-                        Plugin.getInstance().getConfig().set("skills", toggled);
-                        Plugin.getInstance().saveConfig();
+                        Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
+                            Plugin.getInstance().getConfig().set("skills", toggled);
+                            Plugin.getInstance().saveConfig();
+                        });
                         event.getWhoClicked().closeInventory();
                         open((Player) event.getWhoClicked());
                     } else if (event.getSlot() == 4) {
                         boolean toggled = !FilePull.isFolderEnabled(FilePullFolder.RUNIC_ITEMS);
                         FilePull.setFolderEnabled(FilePullFolder.RUNIC_ITEMS, toggled);
-                        Plugin.getInstance().getConfig().set("runicitems", toggled);
-                        Plugin.getInstance().saveConfig();
+                        Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
+                            Plugin.getInstance().getConfig().set("runicitems", toggled);
+                            Plugin.getInstance().saveConfig();
+                        });
                         event.getWhoClicked().closeInventory();
                         open((Player) event.getWhoClicked());
                     } else if (event.getSlot() == 6) {
-                        boolean toggled = !FilePull.isFolderEnabled(FilePullFolder.ITEMS);
-                        FilePull.setFolderEnabled(FilePullFolder.ITEMS, toggled);
-                        Plugin.getInstance().getConfig().set("items", toggled);
-                        Plugin.getInstance().saveConfig();
+                        boolean toggled = !FilePull.isFolderEnabled(FilePullFolder.SCRIPT_ITEMS);
+                        FilePull.setFolderEnabled(FilePullFolder.SCRIPT_ITEMS, toggled);
+                        Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
+                            Plugin.getInstance().getConfig().set("scriptitems", toggled);
+                            Plugin.getInstance().saveConfig();
+                        });
                         event.getWhoClicked().closeInventory();
                         open((Player) event.getWhoClicked());
                     } else if (event.getSlot() == 8) {
                         boolean toggled = !FilePull.isFolderEnabled(FilePullFolder.QUESTS);
                         FilePull.setFolderEnabled(FilePullFolder.QUESTS, toggled);
-                        Plugin.getInstance().getConfig().set("quests", toggled);
-                        Plugin.getInstance().saveConfig();
-                        event.getWhoClicked().closeInventory();
+                        Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
+                            Plugin.getInstance().getConfig().set("quests", toggled);
+                            Plugin.getInstance().saveConfig();
+                        });
                         open((Player) event.getWhoClicked());
                     } else if (event.getSlot() == 13) {
                         if (FilePull.isFolderEnabled(FilePullFolder.MOBS) ||
                                 FilePull.isFolderEnabled(FilePullFolder.SKILLS) ||
                                 FilePull.isFolderEnabled(FilePullFolder.RUNIC_ITEMS) ||
-                                FilePull.isFolderEnabled(FilePullFolder.ITEMS) ||
+                                FilePull.isFolderEnabled(FilePullFolder.SCRIPT_ITEMS) ||
                                 FilePull.isFolderEnabled(FilePullFolder.QUESTS)) {
                             event.getWhoClicked().closeInventory();
                             FilePull.startFilePull((Player) event.getWhoClicked());

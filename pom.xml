@@ -10,7 +10,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<fileOutput>${user.home}/builds</fileOutput>
+		<fileOutput>${project.basedir}/../lib</fileOutput>
 	</properties>
 
 	<build>
