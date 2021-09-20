@@ -17,6 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
 public class FilePull {
@@ -29,10 +30,10 @@ public class FilePull {
     private static Map<FilePullFolder, String> treeShas = new HashMap<>();
 
     private static boolean isRunning = false;
-    private static volatile Integer totalFiles = 0;
-    private static volatile Integer filesCompleted = 0;
-    private static volatile Integer downloadsStarted = 0;
-    private static volatile Integer downloadsNeeded = 0;
+    private static volatile AtomicInteger totalFiles = new AtomicInteger();
+    private static volatile AtomicInteger filesCompleted = new AtomicInteger();
+    private static volatile AtomicInteger downloadsStarted = new AtomicInteger();
+    private static volatile AtomicInteger downloadsNeeded = new AtomicInteger();
 
     public static void setFolderEnabled(FilePullFolder folder, Boolean enabled) {
         folders.put(folder, enabled);
@@ -66,10 +67,10 @@ public class FilePull {
 
     private static void reset() {
         isRunning = false;
-        totalFiles = 0;
-        filesCompleted = 0;
-        downloadsStarted = 0;
-        downloadsNeeded = 0;
+        totalFiles.set(0);
+        filesCompleted.set(0);
+        downloadsStarted.set(0);
+        downloadsNeeded.set(0);
     }
 
     public static void startFilePull(Player initiator) {
@@ -81,15 +82,22 @@ public class FilePull {
 
             for (FilePullFolder folder : FilePullFolder.values()) {
                 if (folders.get(folder) == true) {
-                    downloadsNeeded++;
-                    Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {try {mirrorFiles(folder);} catch (Exception exception) {Bukkit.broadcastMessage(ChatColor.RED + "There was an issue downloading the " + folder.getGithubPath() + "! Check the console for more information. Some files may be be missing."); exception.printStackTrace();}});
+                    downloadsNeeded.addAndGet(1);
+                    Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
+                        try {
+                            mirrorFiles(folder);
+                        } catch (Exception exception) {
+                            Bukkit.broadcastMessage(ChatColor.RED + "There was an issue downloading the " + folder.getGithubPath() + "! Check the console for more information. Some files may be be missing.");
+                            exception.printStackTrace();
+                        }
+                    });
                 }
             }
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    if (downloadsStarted == downloadsNeeded) {
-                        if (filesCompleted >= totalFiles) {
+                    if (downloadsStarted.get() == downloadsNeeded.get()) {
+                        if (filesCompleted.get() >= totalFiles.get()) {
                             if (folders.get(FilePullFolder.QUESTS) || folders.get(FilePullFolder.RUNIC_ITEMS)) {
                                 Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> {reset(); Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rstop");}, 5 * 20);
                                 Bukkit.getOnlinePlayers().forEach(player -> player.sendTitle("", ChatColor.GREEN + "Done! " + ChatColor.DARK_RED + "Restarting in " + ChatColor.RED + "5" + ChatColor.DARK_RED + "...", 0, 40, 0));
@@ -110,7 +118,7 @@ public class FilePull {
                                 return;
                             }
                         }
-                        double percentage = Math.round(((100.0 * filesCompleted) / totalFiles * 1.0) * 10.0) / 10.0;
+                        double percentage = Math.round(((100.0 * filesCompleted.get()) / totalFiles.get()) * 10.0) / 10.0;
                         for (Player player : Bukkit.getOnlinePlayers()) {
                             player.sendTitle("", ChatColor.GREEN + "File Pull: " + ChatColor.YELLOW + percentage + "%", 0, 40, 0);
                         }
@@ -143,8 +151,8 @@ public class FilePull {
         JSONObject tree = (JSONObject) (new JSONParser()).parse(getWithAuth("https://api.github.com/repos/Skyfallin/writer-files/git/trees/" + treeShas.get(folder)));
         JSONArray files = (JSONArray) tree.get("tree");
         //JSONArray files = (JSONArray) (new JSONParser()).parse(getWithAuth("https://api.github.com/repos/Skyfallin/writer-files/contents/" + ghPath, "47a7bcf0b66a78f709f7b39d416f78ef092f9564"));
-        totalFiles += files.size();
-        downloadsStarted++;
+        totalFiles.addAndGet(files.size());
+        downloadsStarted.addAndGet(1);
         File destination = new File(Plugin.getInstance().getDataFolder().getParent(), folder.getLocalPath());
         if (!destination.exists()) {
             destination.mkdirs();
@@ -160,7 +168,7 @@ public class FilePull {
                 File localFile = new File(destination, (String) jsonObject.get("path"));
                 JSONObject gitJson = (JSONObject) (new JSONParser()).parse(getWithAuth((String) ((JSONObject) object).get("url")));
                 writeBase64ToFile((String) gitJson.get("content"), localFile);
-                filesCompleted++;
+                filesCompleted.addAndGet(1);
             }
         }
     }
