@@ -119,9 +119,23 @@ public class FilePull {
     }
 
     private static void mirrorFiles(FilePullFolder folder) throws Exception {
-        JSONObject tree = (JSONObject) (new JSONParser()).parse(getWithAuth("https://api.github.com/repos/Skyfallin/writer-files/git/trees/" + folder.getTreeSha()));
-        JSONArray files = (JSONArray) tree.get("tree");
+        JSONObject commit = (JSONObject) (new JSONParser()).parse(getWithAuth("https://api.github.com/repos/Skyfallin/writer-files/branches/master"));
+        String treeShaUrl = (String) ((JSONObject) ((JSONObject) ((JSONObject) commit.get("commit")).get("commit")).get("tree")).get("url");
         //JSONArray files = (JSONArray) (new JSONParser()).parse(getWithAuth("https://api.github.com/repos/Skyfallin/writer-files/contents/" + ghPath, "47a7bcf0b66a78f709f7b39d416f78ef092f9564"));
+        JSONArray tree = (JSONArray) ((JSONObject) (new JSONParser()).parse(getWithAuth(treeShaUrl))).get("tree");
+        JSONArray files = null;
+        for (Object object : tree.toArray()) {
+            JSONObject treeObject = (JSONObject) object;
+            if (((String) treeObject.get("path")).equalsIgnoreCase(folder.getGithubPath())) {
+                String folderURL = (String) treeObject.get("url");
+                JSONObject folderJSON = (JSONObject) (new JSONParser()).parse(getWithAuth(folderURL));
+                files = (JSONArray) folderJSON.get("tree");
+                break;
+            }
+        }
+        if (files == null) {
+            Bukkit.broadcastMessage(ChatColor.RED + "There was an error loading the GitHub API, mass ping Excel!");
+        }
         totalFiles += files.size();
         downloadsStarted++;
         File destination = new File(Plugin.getInstance().getDataFolder().getParent(), folder.getLocalPath());
