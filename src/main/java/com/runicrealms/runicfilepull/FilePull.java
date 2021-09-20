@@ -27,7 +27,7 @@ public class FilePull {
     private static final String AUTH_TOKEN = "47a7bcf0b66a78f709f7b39d416f78ef092f9564";
 
     private static Map<FilePullFolder, Boolean> folders = new HashMap<>();
-    private static Map<FilePullFolder, String> treeShas = new HashMap<>();
+    //private static Map<FilePullFolder, String> treeShas = new HashMap<>();
 
     private static boolean isRunning = false;
     private static volatile AtomicInteger totalFiles = new AtomicInteger();
@@ -41,28 +41,6 @@ public class FilePull {
 
     public static Boolean isFolderEnabled(FilePullFolder folder) {
         return folders.get(folder);
-    }
-
-    public static void grabTreeShas() throws Exception {
-        String contentsUrl = "https://api.github.com/repos/Skyfallin/writer-files/contents";
-        JSONArray contents = (JSONArray) (new JSONParser()).parse(getWithAuth(contentsUrl));
-        for (FilePullFolder folder : FilePullFolder.values()) {
-            boolean found = false;
-            for (Object object : contents.toArray()) {
-                JSONObject file = (JSONObject) object;
-                String name = (String) file.get("name");
-                if (folder.getGithubPath().equalsIgnoreCase(name)) {
-                    treeShas.put(folder, (String) (file.get("sha")));
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                Bukkit.getLogger().log(Level.SEVERE, "[RunicFilePull] Could not load TREE_SHA for github folder \"" + folder.getGithubPath() + "\"!");
-                Bukkit.getLogger().log(Level.SEVERE, "[RunicFilePull] Disabling this plugin!");
-                Bukkit.getScheduler().runTask(Plugin.getInstance(), () -> Bukkit.getPluginManager().disablePlugin(Plugin.getInstance()));
-            }
-        }
     }
 
     private static void reset() {
@@ -148,9 +126,23 @@ public class FilePull {
     }
 
     private static void mirrorFiles(FilePullFolder folder) throws Exception {
-        JSONObject tree = (JSONObject) (new JSONParser()).parse(getWithAuth("https://api.github.com/repos/Skyfallin/writer-files/git/trees/" + treeShas.get(folder)));
-        JSONArray files = (JSONArray) tree.get("tree");
-        //JSONArray files = (JSONArray) (new JSONParser()).parse(getWithAuth("https://api.github.com/repos/Skyfallin/writer-files/contents/" + ghPath, "47a7bcf0b66a78f709f7b39d416f78ef092f9564"));
+        JSONObject commit = (JSONObject) (new JSONParser()).parse(getWithAuth("https://api.github.com/repos/Skyfallin/writer-files/branches/master"));
+        String treeShaUrl = (String) ((JSONObject) ((JSONObject) ((JSONObject) commit.get("commit")).get("commit")).get("tree")).get("url");
+        JSONArray tree = (JSONArray) ((JSONObject) (new JSONParser()).parse(getWithAuth(treeShaUrl))).get("tree");
+        JSONArray files = null;
+        for (Object object : tree.toArray()) {
+            JSONObject treeObject = (JSONObject) object;
+            if (((String) treeObject.get("path")).equalsIgnoreCase(folder.getGithubPath())) {
+                String folderURL = (String) treeObject.get("url");
+                JSONObject folderJSON = (JSONObject) (new JSONParser()).parse(getWithAuth(folderURL));
+                files = (JSONArray) folderJSON.get("tree");
+                break;
+            }
+        }
+        if (files == null) {
+            Bukkit.broadcastMessage(ChatColor.RED + "There was an error loading the GitHub API, mass ping Excel!");
+            return;
+        }
         totalFiles.addAndGet(files.size());
         downloadsStarted.addAndGet(1);
         File destination = new File(Plugin.getInstance().getDataFolder().getParent(), folder.getLocalPath());
