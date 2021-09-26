@@ -26,14 +26,13 @@ public class FilePull {
 
     private static final String AUTH_TOKEN = "47a7bcf0b66a78f709f7b39d416f78ef092f9564";
 
-    private static Map<FilePullFolder, Boolean> folders = new HashMap<>();
-    //private static Map<FilePullFolder, String> treeShas = new HashMap<>();
+    private static final Map<FilePullFolder, Boolean> folders = new HashMap<>();
 
     private static boolean isRunning = false;
-    private static volatile AtomicInteger totalFiles = new AtomicInteger();
-    private static volatile AtomicInteger filesCompleted = new AtomicInteger();
-    private static volatile AtomicInteger downloadsStarted = new AtomicInteger();
-    private static volatile AtomicInteger downloadsNeeded = new AtomicInteger();
+    private static final AtomicInteger totalFiles = new AtomicInteger(0);
+    private static final AtomicInteger filesCompleted = new AtomicInteger(0);
+    private static final AtomicInteger downloadsStarted = new AtomicInteger(0);
+    private static final AtomicInteger downloadsNeeded = new AtomicInteger(0);
 
     public static void setFolderEnabled(FilePullFolder folder, Boolean enabled) {
         folders.put(folder, enabled);
@@ -59,13 +58,13 @@ public class FilePull {
             Bukkit.broadcastMessage(ChatColor.DARK_GREEN + "WARNING - Mobs and quests may break while File Pull is running!");
 
             for (FilePullFolder folder : FilePullFolder.values()) {
-                if (folders.get(folder) == true) {
+                if (folders.get(folder)) {
                     downloadsNeeded.addAndGet(1);
                     Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
                         try {
                             mirrorFiles(folder);
                         } catch (Exception exception) {
-                            Bukkit.broadcastMessage(ChatColor.RED + "There was an issue downloading the " + folder.getGithubPath() + "! Check the console for more information. Some files may be be missing.");
+                            Bukkit.broadcastMessage(ChatColor.RED + "There was an issue downloading the " + folder.getGithubPath() + "! Check the console for more information. Files are likely missing.");
                             exception.printStackTrace();
                         }
                     });
@@ -79,22 +78,20 @@ public class FilePull {
                             if (folders.get(FilePullFolder.QUESTS) || folders.get(FilePullFolder.RUNIC_ITEMS)) {
                                 Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> {reset(); Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rstop");}, 5 * 20);
                                 Bukkit.getOnlinePlayers().forEach(player -> player.sendTitle("", ChatColor.GREEN + "Done! " + ChatColor.DARK_RED + "Restarting in " + ChatColor.RED + "5" + ChatColor.DARK_RED + "...", 0, 40, 0));
-                                Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> Bukkit.getOnlinePlayers().forEach(player -> player.sendTitle("", ChatColor.DARK_RED + "Restarting in " + ChatColor.RED + "4" + ChatColor.DARK_RED + "...", 0, 40, 0)), 20L * 1);
+                                Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> Bukkit.getOnlinePlayers().forEach(player -> player.sendTitle("", ChatColor.DARK_RED + "Restarting in " + ChatColor.RED + "4" + ChatColor.DARK_RED + "...", 0, 40, 0)), 20L);
                                 Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> Bukkit.getOnlinePlayers().forEach(player -> player.sendTitle("", ChatColor.DARK_RED + "Restarting in " + ChatColor.RED + "3" + ChatColor.DARK_RED + "...", 0, 40, 0)), 20L * 2);
                                 Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> Bukkit.getOnlinePlayers().forEach(player -> player.sendTitle("", ChatColor.DARK_RED + "Restarting in " + ChatColor.RED + "2" + ChatColor.DARK_RED + "...", 0, 40, 0)), 20L * 3);
                                 Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> Bukkit.getOnlinePlayers().forEach(player -> player.sendTitle("", ChatColor.DARK_RED + "Restarting in " + ChatColor.RED + "1" + ChatColor.DARK_RED + "...", 0, 40, 0)), 20L * 4);
-                                this.cancel();
-                                return;
                             } else {
                                 Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> {reset(); Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mm reload");}, 5 * 20);
                                 Bukkit.getOnlinePlayers().forEach(player -> player.sendTitle("", ChatColor.GREEN + "Done! " + ChatColor.DARK_RED + "Reloading MythicMobs in " + ChatColor.RED + "5" + ChatColor.DARK_RED + "...", 0, 40, 0));
-                                Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> Bukkit.getOnlinePlayers().forEach(player -> player.sendTitle("", ChatColor.DARK_RED + "Reloading MythicMobs in " + ChatColor.RED + "4" + ChatColor.DARK_RED + "...", 0, 40, 0)), 20L * 1);
+                                Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> Bukkit.getOnlinePlayers().forEach(player -> player.sendTitle("", ChatColor.DARK_RED + "Reloading MythicMobs in " + ChatColor.RED + "4" + ChatColor.DARK_RED + "...", 0, 40, 0)), 20L);
                                 Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> Bukkit.getOnlinePlayers().forEach(player -> player.sendTitle("", ChatColor.DARK_RED + "Reloading MythicMobs in " + ChatColor.RED + "3" + ChatColor.DARK_RED + "...", 0, 40, 0)), 20L * 2);
                                 Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> Bukkit.getOnlinePlayers().forEach(player -> player.sendTitle("", ChatColor.DARK_RED + "Reloading MythicMobs in " + ChatColor.RED + "2" + ChatColor.DARK_RED + "...", 0, 40, 0)), 20L * 3);
                                 Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> Bukkit.getOnlinePlayers().forEach(player -> player.sendTitle("", ChatColor.DARK_RED + "Reloading MythicMobs in " + ChatColor.RED + "1" + ChatColor.DARK_RED + "...", 0, 40, 0)), 20L * 4);
-                                this.cancel();
-                                return;
                             }
+                            this.cancel();
+                            return;
                         }
                         double percentage = Math.round(((100.0 * filesCompleted.get()) / totalFiles.get()) * 10.0) / 10.0;
                         for (Player player : Bukkit.getOnlinePlayers()) {

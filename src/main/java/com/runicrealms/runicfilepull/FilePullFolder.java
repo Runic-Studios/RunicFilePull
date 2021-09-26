@@ -6,6 +6,7 @@ public enum FilePullFolder {
     SKILLS("MythicMobs/Skills", "skills"),
     RUNIC_ITEMS("RunicItems/items", "runicitems"),
     SCRIPT_ITEMS("RunicItems/script", "scriptitems"),
+    MYTHIC_ITEMS("MythicMobs/Items", "mythicitems"),
     QUESTS("RunicQuests/quests", "quests");
 
     private final String localPath;
