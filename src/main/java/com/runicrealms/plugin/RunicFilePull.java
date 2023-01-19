@@ -30,5 +30,7 @@ public class RunicFilePull extends JavaPlugin {
         Bukkit.getPluginCommand("filepull").setExecutor(command);
         Bukkit.getPluginCommand("pull").setExecutor(command);
         Bukkit.getPluginCommand("fp").setExecutor(command);
+
+        FileSync.startWebhook();
     }
 }

@@ -38,4 +38,11 @@ public enum FilePullFolder {
         return this.localPath;
     }
 
+    public static FilePullFolder getFromPath(String githubPath)  {
+        for (FilePullFolder value : values()) {
+            if (githubPath.startsWith(value.githubPath)) return value;
+        }
+        throw new IllegalArgumentException("Invalid github path " + githubPath);
+    }
+
 }
