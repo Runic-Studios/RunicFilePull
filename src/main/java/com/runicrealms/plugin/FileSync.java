@@ -7,50 +7,45 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 import spark.Spark;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 public class FileSync {
-
-    private static final String SECRET = "TheSkyIsFallin8392"; // Secret x-hub-signature key that we use for salting the sha256 hash to verify its github
-    private static final String AUTH_TOKEN = "47a7bcf0b66a78f709f7b39d416f78ef092f9564"; // github auth token for repository
-    private static final String REPO_PATH = "Skyfallin/writer-files"; // repository path
 
     public static void startWebhook() {
         Spark.port(25570);
         Spark.post("/", (request, response) -> {
-            String signature = "sha256=" + HmacUtils.hmacSha256Hex(SECRET, request.body());
+            // Create a SHA256 hash with our secret key, and compare it to the requests' x-hub-signature header for github authentication
+            String signature = "sha256=" + HmacUtils.hmacSha256Hex(RunicFilePull.SECRET, request.body());
             String header = request.headers("X-Hub-Signature-256");
             if (header == null || header.isEmpty()) return "Invalid Auth";
             if (!header.equalsIgnoreCase(signature)) return "Invalid Auth";
             JSONObject webhookBody = (JSONObject) new JSONParser().parse(request.body());
+
+            // Check if we have changed commits (i.e. the webhook request has some type of file change). Other events like pings and pull requests would be ignored.
             if (!webhookBody.containsKey("after") || !webhookBody.containsKey("before")) return "Unmonitored event";
             String commitBefore = (String) webhookBody.get("before");
             String commitAfter = (String) webhookBody.get("after");
             if (commitBefore.equalsIgnoreCase(commitAfter)) return "Unmonitored event";
 
-            Object[] commitList = ((JSONArray) new JSONParser().parse(getWithAuth("https://api.github.com/repos/" + REPO_PATH + "/commits"))).toArray();
+            // Get the list of commits to find the latest one
+            Object[] commitList = ((JSONArray) new JSONParser().parse(FileUtils.getWithAuth("https://api.github.com/repos/" + RunicFilePull.REPO_PATH + "/commits", RunicFilePull.AUTH_TOKEN))).toArray();
             if (commitList.length < 1) return "Failed";
             JSONObject commitInfo = (JSONObject) commitList[0];
             String commitSha = (String) commitInfo.get("sha");
 
-
-            JSONObject commit = (JSONObject) new JSONParser().parse(getWithAuth("https://api.github.com/repos/" + REPO_PATH + "/commits/" + commitSha));
+            // Grab the latest commit and get the list of files changed
+            JSONObject commit = (JSONObject) new JSONParser().parse(FileUtils.getWithAuth("https://api.github.com/repos/" + RunicFilePull.REPO_PATH + "/commits/" + commitSha, RunicFilePull.AUTH_TOKEN));
             JSONArray commitFiles = (JSONArray) commit.get("files");
             for (Object fileObj : commitFiles) {
                 JSONObject fileInList = (JSONObject) fileObj;
-                JSONObject file = (JSONObject) new JSONParser().parse(getWithAuth((String) fileInList.get("contents_url")));
-                String fileName = (String) file.get("name");
-                String filePath = (String) file.get("path");
+                JSONObject file = (JSONObject) new JSONParser().parse(FileUtils.getWithAuth((String) fileInList.get("contents_url"), RunicFilePull.AUTH_TOKEN));
+                String fileName = (String) file.get("name"); // Name of file
+                String filePath = (String) file.get("path"); // Name of file with path (mobs/file.yml)
                 if (!fileName.endsWith(".yml")) continue;
 
+                // Create the local file path for the file we are changing
                 File destination;
                 try {
                     destination = new File(RunicFilePull.getInstance().getDataFolder().getParent(), FilePullFolder.getFromPath((String) file.get("path")).getLocalPath());
@@ -60,11 +55,11 @@ public class FileSync {
                 File current = new File(destination, (String) file.get("name"));
 
                 try {
-
+                    // Status states what change was made to the file, added, removed or modified
                     String status = (String) fileInList.get("status");
                     if (status.equalsIgnoreCase("removed") || status.equalsIgnoreCase("modified")) {
                         if (current.exists()) {
-                            boolean result = current.delete();
+                            boolean result = current.delete(); // Delete the file if we are removing or modifing it
                             if (!result) {
                                 Bukkit.broadcastMessage(ChatColor.RED + "ERROR: attempted to pull github file change " + fileName + " but could not remove local file. Aborting.");
                                 continue;
@@ -72,7 +67,7 @@ public class FileSync {
                         }
                     }
                     if (status.equalsIgnoreCase("added") || status.equalsIgnoreCase("modified")) {
-                        writeBase64ToFile((String) file.get("content"), current);
+                        FileUtils.writeBase64ToFile((String) file.get("content"), current);
                     }
                     if (status.equalsIgnoreCase("added")) {
                         Bukkit.broadcastMessage(ChatColor.DARK_GREEN + "[FileSync] " + ChatColor.GREEN + "Added new file " + filePath);
@@ -89,31 +84,6 @@ public class FileSync {
 
             return "Okay";
         });
-    }
-
-    private static void writeBase64ToFile(String base64, File file) throws Exception {
-        StringBuilder base64Builder = new StringBuilder(base64.replaceAll("\\n", ""));
-        while (base64Builder.length() % 4 > 0) {
-            base64Builder.append('=');
-        }
-        base64 = base64Builder.toString();
-        PrintWriter writer = new PrintWriter(file);
-        writer.print(Base64Coder.decodeString(base64));
-        writer.close();
-    }
-
-    private static String getWithAuth(String url) throws Exception {
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        connection.setRequestMethod("GET");
-        connection.setDoOutput(true);
-        connection.setRequestProperty("Authorization", "token " + AUTH_TOKEN);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        StringBuilder output = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            output.append(line).append("\n");
-        }
-        return output.toString();
     }
 
 }

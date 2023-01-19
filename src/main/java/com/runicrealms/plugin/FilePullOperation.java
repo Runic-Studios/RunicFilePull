@@ -25,10 +25,6 @@ import java.util.logging.Level;
  */
 public class FilePullOperation {
 
-    // runicrealmsgithub:runicrealmsPASSWORD
-
-    private static final String AUTH_TOKEN = "47a7bcf0b66a78f709f7b39d416f78ef092f9564";
-
     private static final Map<FilePullFolder, Boolean> folders = new HashMap<>();
     private static final AtomicInteger totalFiles = new AtomicInteger(0);
     private static final AtomicInteger filesCompleted = new AtomicInteger(0);
@@ -135,36 +131,16 @@ public class FilePullOperation {
         }
     }
 
-    /**
-     * @param base64
-     * @param file
-     * @throws Exception
-     */
-    private static void writeBase64ToFile(String base64, File file) throws Exception {
-        StringBuilder base64Builder = new StringBuilder(base64.replaceAll("\\n", ""));
-        while (base64Builder.length() % 4 > 0) {
-            base64Builder.append('=');
-        }
-        base64 = base64Builder.toString();
-        PrintWriter writer = new PrintWriter(file);
-        writer.print(Base64Coder.decodeString(base64));
-        writer.close();
-    }
-
-    /**
-     * @param folder
-     * @throws Exception
-     */
     private static void mirrorFiles(FilePullFolder folder) throws Exception {
-        JSONObject commit = (JSONObject) (new JSONParser()).parse(getWithAuth("https://api.github.com/repos/Skyfallin/writer-files/branches/master"));
+        JSONObject commit = (JSONObject) (new JSONParser()).parse(FileUtils.getWithAuth("https://api.github.com/repos/" + RunicFilePull.REPO_PATH + "/branches/master", RunicFilePull.AUTH_TOKEN));
         String treeShaUrl = (String) ((JSONObject) ((JSONObject) ((JSONObject) commit.get("commit")).get("commit")).get("tree")).get("url");
-        JSONArray tree = (JSONArray) ((JSONObject) (new JSONParser()).parse(getWithAuth(treeShaUrl))).get("tree");
+        JSONArray tree = (JSONArray) ((JSONObject) (new JSONParser()).parse(FileUtils.getWithAuth(treeShaUrl, RunicFilePull.AUTH_TOKEN))).get("tree");
         JSONArray files = null;
         for (Object object : tree.toArray()) {
             JSONObject treeObject = (JSONObject) object;
             if (((String) treeObject.get("path")).equalsIgnoreCase(folder.getGitHubPath())) {
                 String folderURL = (String) treeObject.get("url");
-                JSONObject folderJSON = (JSONObject) (new JSONParser()).parse(getWithAuth(folderURL));
+                JSONObject folderJSON = (JSONObject) (new JSONParser()).parse(FileUtils.getWithAuth(folderURL, RunicFilePull.AUTH_TOKEN));
                 files = (JSONArray) folderJSON.get("tree");
                 break;
             }
@@ -188,30 +164,11 @@ public class FilePullOperation {
             JSONObject jsonObject = ((JSONObject) object);
             if (jsonObject.get("type").equals("blob") && ((String) jsonObject.get("path")).endsWith(".yml")) {
                 File localFile = new File(destination, (String) jsonObject.get("path"));
-                JSONObject gitJson = (JSONObject) (new JSONParser()).parse(getWithAuth((String) ((JSONObject) object).get("url")));
-                writeBase64ToFile((String) gitJson.get("content"), localFile);
+                JSONObject gitJson = (JSONObject) (new JSONParser()).parse(FileUtils.getWithAuth((String) ((JSONObject) object).get("url"), RunicFilePull.AUTH_TOKEN));
+                FileUtils.writeBase64ToFile((String) gitJson.get("content"), localFile);
                 filesCompleted.addAndGet(1);
             }
         }
-    }
-
-    /**
-     * @param url
-     * @return
-     * @throws Exception
-     */
-    private static String getWithAuth(String url) throws Exception {
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        connection.setRequestMethod("GET");
-        connection.setDoOutput(true);
-        connection.setRequestProperty("Authorization", "token " + AUTH_TOKEN);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        StringBuilder output = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            output.append(line).append("\n");
-        }
-        return output.toString();
     }
 
 }
