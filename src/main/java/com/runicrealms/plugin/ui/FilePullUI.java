@@ -49,9 +49,9 @@ public class FilePullUI implements Listener {
     private static ItemStack createIconFromStatus(FilePullFolder filePullFolder) {
         ItemStack itemStack;
         if (FilePullOperation.isFolderEnabled(filePullFolder)) {
-            itemStack = buildIcon(Material.GREEN_STAINED_GLASS, "&6" + filePullFolder.getGitHubPath() + ": &r&2&lENABLED", new String[]{"&7Click to disable"});
+            itemStack = buildIcon(Material.GREEN_WOOL, "&6" + filePullFolder.getGitHubPath() + ": &r&2&lENABLED", new String[]{"&7Click to disable"});
         } else {
-            itemStack = buildIcon(Material.RED_STAINED_GLASS, "&6" + filePullFolder.getGitHubPath() + ": &r&c&lDISABLED", new String[]{"&7Click to enable"});
+            itemStack = buildIcon(Material.RED_WOOL, "&6" + filePullFolder.getGitHubPath() + ": &r&c&lDISABLED", new String[]{"&7Click to enable"});
         }
         return itemStack;
     }

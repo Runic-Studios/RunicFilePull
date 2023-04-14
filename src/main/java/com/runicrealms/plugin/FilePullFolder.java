@@ -9,7 +9,8 @@ public enum FilePullFolder {
     MYTHIC_ITEMS(13, "MythicMobs/Items", "mythicitems"),
     QUESTS(15, "RunicQuests/quests", "quests"),
     SHOPS(20, "RunicCore/shops", "shops"),
-    WORKSTATIONS(22, "RunicProfessions/workstations", "workstations");
+    SPELLS(22, "RunicCore/spells", "spells"),
+    WORKSTATIONS(24, "RunicProfessions/workstations", "workstations");
 
     private final int inventorySlot;
     private final String localPath;
@@ -26,6 +27,13 @@ public enum FilePullFolder {
         this.githubPath = githubPath;
     }
 
+    public static FilePullFolder getFromPath(String githubPath) {
+        for (FilePullFolder value : values()) {
+            if (githubPath.startsWith(value.githubPath)) return value;
+        }
+        throw new IllegalArgumentException("Invalid github path " + githubPath);
+    }
+
     public String getGitHubPath() {
         return this.githubPath;
     }
@@ -36,13 +44,6 @@ public enum FilePullFolder {
 
     public String getLocalPath() {
         return this.localPath;
-    }
-
-    public static FilePullFolder getFromPath(String githubPath)  {
-        for (FilePullFolder value : values()) {
-            if (githubPath.startsWith(value.githubPath)) return value;
-        }
-        throw new IllegalArgumentException("Invalid github path " + githubPath);
     }
 
 }
