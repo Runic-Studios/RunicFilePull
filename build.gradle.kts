@@ -1,7 +1,6 @@
 plugins {
     `java-library`
     `maven-publish`
-    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 group = "com.runicrealms.plugin"
@@ -15,9 +14,9 @@ repositories {
 dependencies {
     compileOnly(commonLibs.paper)
     compileOnly(commonLibs.spigot)
-    implementation("org.apache.httpcomponents:httpclient:4.5.14")
-    implementation("commons-io:commons-io:2.11.0")
-    implementation("com.sparkjava:spark-core:2.9.4")
+    compileOnly(commonLibs.httpclient)
+    compileOnly(commonLibs.commonsio)
+    compileOnly(commonLibs.spark)
 }
 
 java {
@@ -33,12 +32,6 @@ publishing {
             from(components["java"])
         }
     }
-}
-
-tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-//    build {
-//        dependsOn(shadowJar)
-//    }
 }
 
 tasks.register("wrapper")
