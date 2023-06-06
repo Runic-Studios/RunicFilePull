@@ -6,10 +6,12 @@ import org.bukkit.ChatColor;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-
 import spark.Spark;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class FileSync {
 
@@ -55,18 +57,39 @@ public class FileSync {
                 File current = new File(destination, (String) file.get("name"));
 
                 try {
-                    // Status states what change was made to the file, added, removed or modified
+                    // Status states what change was made to the file, added, removed, modified, or renamed
                     String status = (String) fileInList.get("status");
+
+                    if (status.equalsIgnoreCase("renamed") && fileInList.containsKey("previous_filename")) {
+                        String previousFileNamePath = (String) fileInList.get("previous_filename"); // mobs/mymob.yml
+                        Matcher matcher = Pattern.compile("[^/]*$").matcher(previousFileNamePath);
+                        if (matcher.find()) {
+                            String previousFileName = matcher.group(); // mymob.yml
+                            File previousFile = new File(destination, previousFileName);
+                            try {
+                                Files.delete(previousFile.toPath());
+                            } catch (Exception exception) {
+                                Bukkit.broadcastMessage(ChatColor.RED + "ERROR: attempted to pull github file change " + fileName + ", and when deleting previous file name " + previousFile.getName() +
+                                        ", failed to remove local file. Message excel to get stacktrace with more info. Continuing with pull.");
+                                exception.printStackTrace();
+                            }
+                        } else {
+                            Bukkit.broadcastMessage(ChatColor.RED + "Could not find local file to delete: " + previousFileNamePath + ". Continuing with sync...");
+                        }
+                    }
+
                     if (status.equalsIgnoreCase("removed") || status.equalsIgnoreCase("modified")) {
                         if (current.exists()) {
-                            boolean result = current.delete(); // Delete the file if we are removing or modifing it
-                            if (!result) {
-                                Bukkit.broadcastMessage(ChatColor.RED + "ERROR: attempted to pull github file change " + fileName + " but could not remove local file. Aborting.");
+                            try {
+                                Files.delete(current.toPath());
+                            } catch (Exception exception) {
+                                Bukkit.broadcastMessage(ChatColor.RED + "ERROR: attempted to pull github file change " + fileName + " but could not remove local file. Message excel to get stacktrace with more info. Aborting.");
+                                exception.printStackTrace();
                                 continue;
                             }
                         }
                     }
-                    if (status.equalsIgnoreCase("added") || status.equalsIgnoreCase("modified")) {
+                    if (status.equalsIgnoreCase("added") || status.equalsIgnoreCase("modified") || status.equalsIgnoreCase("renamed")) {
                         FileUtils.writeBase64ToFile((String) file.get("content"), current);
                     }
                     if (status.equalsIgnoreCase("added")) {
@@ -75,6 +98,8 @@ public class FileSync {
                         Bukkit.broadcastMessage(ChatColor.DARK_GREEN + "[FileSync] " + ChatColor.GREEN + "Removed file " + filePath);
                     } else if (status.equalsIgnoreCase("modified")) {
                         Bukkit.broadcastMessage(ChatColor.DARK_GREEN + "[FileSync] " + ChatColor.GREEN + "Modified file " + filePath);
+                    } else if (status.equalsIgnoreCase("renamed")) {
+                        Bukkit.broadcastMessage(ChatColor.DARK_GREEN + "[FileSync] " + ChatColor.GREEN + "Renamed (and modified) file " + filePath);
                     }
                 } catch (Exception exception) {
                     exception.printStackTrace();
