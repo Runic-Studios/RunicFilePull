@@ -7,14 +7,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -132,7 +126,7 @@ public class FilePullOperation {
     }
 
     private static void mirrorFiles(FilePullFolder folder) throws Exception {
-        JSONObject commit = (JSONObject) (new JSONParser()).parse(FileUtils.getWithAuth("https://api.github.com/repos/" + RunicFilePull.REPO_PATH + "/branches/master", RunicFilePull.AUTH_TOKEN));
+        JSONObject commit = (JSONObject) (new JSONParser()).parse(FileUtils.getWithAuth("https://api.github.com/repos/" + RunicFilePull.REPO_PATH + "/branches/" + RunicFilePull.BRANCH, RunicFilePull.AUTH_TOKEN));
         String treeShaUrl = (String) ((JSONObject) ((JSONObject) ((JSONObject) commit.get("commit")).get("commit")).get("tree")).get("url");
         JSONArray tree = (JSONArray) ((JSONObject) (new JSONParser()).parse(FileUtils.getWithAuth(treeShaUrl, RunicFilePull.AUTH_TOKEN))).get("tree");
         JSONArray files = null;

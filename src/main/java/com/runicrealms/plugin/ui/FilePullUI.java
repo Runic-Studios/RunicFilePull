@@ -129,7 +129,7 @@ public class FilePullUI implements Listener {
         boolean toggled = !FilePullOperation.isFolderEnabled(filePullFolder);
         FilePullOperation.setFolderEnabled(filePullFolder, toggled);
         Bukkit.getScheduler().runTaskAsynchronously(RunicFilePull.getInstance(), () -> {
-            RunicFilePull.getInstance().getConfig().set(filePullFolder.getGitHubPath(), toggled);
+            RunicFilePull.getInstance().getConfig().set("folder-enabled." + filePullFolder.getGitHubPath(), toggled);
             RunicFilePull.getInstance().saveConfig();
         });
     }

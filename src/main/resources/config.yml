@@ -1,5 +1,17 @@
-mobs: true
-skills: true
-runicitems: true
-items: true
-quests: true
+webhook-secret: secret-here
+access-token: access-token-here
+branch: master
+repo-path: 'Skyfallin/writer-files'
+
+folder-enabled:
+  quests: false
+  spawners: false
+  skills: false
+  items: false
+  scriptitems: false
+  mythicitems: false
+  shops: false
+  workstations: false
+  spells: false
+  runicitems: true
+  mobs: false
