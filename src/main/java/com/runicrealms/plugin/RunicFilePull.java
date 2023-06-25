@@ -39,6 +39,19 @@ public class RunicFilePull extends JavaPlugin {
         Bukkit.getPluginCommand("pull").setExecutor(command);
         Bukkit.getPluginCommand("fp").setExecutor(command);
 
-        Bukkit.getScheduler().runTaskAsynchronously(this, FileSync::startWebhook);
+        if(this.getConfig().getBoolean("automatic-sync.enabled")) {
+            int port;
+            try {
+                port = Integer.parseInt(this.getConfig().getString("automatic-sync.port"));
+            } catch (NumberFormatException | NullPointerException ignored) {
+                port = 25570;
+            }
+
+            final int sparkPort = port;
+
+            Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+                FileSync.startWebhook(sparkPort);
+            });
+        }
     }
 }

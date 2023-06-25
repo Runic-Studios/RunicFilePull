@@ -2,7 +2,9 @@ webhook-secret: secret-here
 access-token: access-token-here
 branch: master
 repo-path: 'Skyfallin/writer-files'
-
+automatic-sync:
+  enabled: true
+  port: 25570
 folder-enabled:
   quests: false
   spawners: false

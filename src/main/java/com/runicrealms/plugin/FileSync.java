@@ -15,8 +15,8 @@ import java.util.regex.Pattern;
 
 public class FileSync {
 
-    public static void startWebhook() {
-        Spark.port(25570);
+    public static void startWebhook(int port) {
+        Spark.port(port);
         Spark.post("/", (request, response) -> {
             // Create a SHA256 hash with our secret key, and compare it to the requests' x-hub-signature header for github authentication
             String signature = "sha256=" + HmacUtils.hmacSha256Hex(RunicFilePull.SECRET, request.body());
