@@ -4,7 +4,3 @@ version: 1.0
 main: com.runicrealms.plugin.RunicFilePull
 api-version: 1.16
 depend: [ RunicCommon ]
-commands:
-  filepull:
-    description: Pulls files from the RR GitHub
-    aliases: [ pull, fp ]

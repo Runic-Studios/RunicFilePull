@@ -1,19 +1,30 @@
 webhook-secret: secret-here
-access-token: access-token-here
+api-token: access-token-here
 branch: master
 repo-path: 'Skyfallin/writer-files'
 automatic-sync:
   enabled: true
   port: 25570
 folder-enabled:
-  quests: false
-  spawners: false
+  npcs: false
+  script-items: false
+  wg-regions: false
+  workstations-locations: false
+  runic-restart-config: false
+  warps: false
+  weapon-skins: false
+  regenerative-chests: false
+  mobs: false
   skills: false
   items: false
-  scriptitems: false
-  mythicitems: false
+  quests: false
+  loot-chest-templates: false
+  loot-tables: false
+  timed-loot: false
+  field-bosses: false
   shops: false
-  workstations: false
   spells: false
-  runicitems: true
-  mobs: false
+  workstations: false
+  guilds-configs: false
+  doors: false
+  spawners: false

@@ -1,21 +1,21 @@
 package com.runicrealms.plugin.command.admin;
 
+import co.aikar.commands.BaseCommand;
+import co.aikar.commands.annotation.CatchUnknown;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandPermission;
+import co.aikar.commands.annotation.Default;
 import com.runicrealms.plugin.ui.FilePullUI;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class FilePullCommand implements CommandExecutor {
+@CommandAlias("filepull|fp")
+@CommandPermission("runic.op")
+public class FilePullCommand extends BaseCommand {
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof Player && sender.isOp()) {
-            FilePullUI.open((Player) sender);
-        } else {
-            sender.sendMessage("You cannot run this command from console!");
-        }
-        return true;
+    @Default
+    @CatchUnknown
+    public void onCommand(Player player) {
+        FilePullUI.open(player);
     }
 
 }

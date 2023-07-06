@@ -1,8 +1,10 @@
 package com.runicrealms.plugin.ui;
 
-import com.runicrealms.plugin.FilePullFolder;
+import com.runicrealms.plugin.FilePullDestination;
 import com.runicrealms.plugin.FilePullOperation;
 import com.runicrealms.plugin.RunicFilePull;
+import com.runicrealms.plugin.common.util.ColorUtil;
+import com.runicrealms.plugin.common.util.GUIUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -13,12 +15,16 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,54 +34,47 @@ public class FilePullUI implements Listener {
     private static final String TITLE = ChatColor.GREEN + "File Pull - Sync Tool";
     private static final Set<UUID> viewers = new HashSet<>();
 
+    private static final Map<Integer, FilePullDestination> destinations = new HashMap<>();
+
+    private static @Nullable FilePullOperation currentOperation;
+
     /**
      * @param player to display inventory to
      */
     public static void open(Player player) {
+        if (destinations.isEmpty()) {
+            int slot = 9;
+            for (FilePullDestination destination : RunicFilePull.destinations) {
+                destinations.put(slot++, destination);
+            }
+        }
+
         Inventory inventory = Bukkit.createInventory(null, 54, TITLE);
 
         // place all folders in ui
-        for (FilePullFolder filePullFolder : FilePullFolder.values()) {
-            inventory.setItem(filePullFolder.getInventorySlot(), createIconFromStatus(filePullFolder));
+        for (int slot : destinations.keySet()) {
+            inventory.setItem(slot, buildIcon(destinations.get(slot)));
         }
 
-        inventory.setItem(START_ITEM_SLOT, buildIcon(Material.SLIME_BALL, "&aStart File Pull", new String[]{}));
+        inventory.setItem(START_ITEM_SLOT, GUIUtil.dispItem(Material.SLIME_BALL, "&aStart File Pull"));
         viewers.add(player.getUniqueId());
         player.openInventory(inventory);
     }
 
-    /**
-     * Updates the visual display of file folder according to its sync status
-     *
-     * @param filePullFolder to grab status from
-     * @return an item for the ui
-     */
-    private static ItemStack createIconFromStatus(FilePullFolder filePullFolder) {
-        ItemStack itemStack;
-        if (FilePullOperation.isFolderEnabled(filePullFolder)) {
-            itemStack = buildIcon(Material.GREEN_WOOL, "&6" + filePullFolder.getGitHubPath() + ": &r&2&lENABLED", new String[]{"&7Click to disable"});
-        } else {
-            itemStack = buildIcon(Material.RED_WOOL, "&6" + filePullFolder.getGitHubPath() + ": &r&c&lDISABLED", new String[]{"&7Click to enable"});
-        }
-        return itemStack;
-    }
-
-    /**
-     * @param material of the ui item
-     * @param name     of the ui item
-     * @param lore     to set for the ui item
-     * @return an item to display
-     */
-    private static ItemStack buildIcon(Material material, String name, String[] lore) {
-        ItemStack item = new ItemStack(material);
+    private static ItemStack buildIcon(FilePullDestination destination) {
+        ItemStack item = new ItemStack(destination.isEnabled() ? Material.CYAN_STAINED_GLASS_PANE : destination.getIconMaterial());
         ItemMeta meta = item.getItemMeta();
         assert meta != null;
-        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
-        List<String> loreList = new ArrayList<>();
-        for (String line : lore) {
-            loreList.add(ChatColor.translateAlternateColorCodes('&', line));
-        }
-        meta.setLore(loreList);
+        meta.setDisplayName(ColorUtil.format(
+                "&6" + destination.getIdentifier() + ": &r" + (destination.isEnabled() ? "&2&lENABLED" : "&c&lDISABLED")
+        ));
+        List<String> lore = destination.adminsOnly() ? new ArrayList<>(List.of(
+                ColorUtil.format("&4&lWARNING:"),
+                ColorUtil.format("&conly admins should perform this!"))) : new ArrayList<>();
+        if (destination.isEnabled()) lore.add(ColorUtil.format("&7Click to disable"));
+        else lore.add(ColorUtil.format("&7Click to enable"));
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES);
+        meta.setLore(lore);
         item.setItemMeta(meta);
         return item;
     }
@@ -88,24 +87,22 @@ public class FilePullUI implements Listener {
         event.setCancelled(true);
 
         // Find corresponding folder and toggle its status
-        for (FilePullFolder filePullFolder : FilePullFolder.values()) {
-            if (event.getRawSlot() != filePullFolder.getInventorySlot()) continue;
-            toggleFolderStatus(filePullFolder);
-            event.getInventory().setItem(filePullFolder.getInventorySlot(), createIconFromStatus(filePullFolder));
+
+        if (destinations.containsKey(event.getSlot())) {
+            FilePullDestination destination = destinations.get(event.getSlot());
+            toggleDestinationStatus(destination);
+            event.getInventory().setItem(event.getSlot(), buildIcon(destination));
         }
 
         // Begin sync if button pressed & any files are enabled
         if (event.getSlot() == START_ITEM_SLOT) {
-            boolean hasFilesToSync = false;
-            for (FilePullFolder filePullFolder : FilePullFolder.values()) {
-                if (FilePullOperation.isFolderEnabled(filePullFolder)) {
-                    hasFilesToSync = true;
-                    break;
-                }
-            }
-            if (hasFilesToSync) {
+            if (RunicFilePull.destinations.stream().anyMatch(FilePullDestination::isEnabled)) {
                 event.getWhoClicked().closeInventory();
-                FilePullOperation.startFilePull((Player) event.getWhoClicked());
+                if (currentOperation != null) {
+                    event.getWhoClicked().sendMessage(ChatColor.RED + "Filepull is already running!");
+                    return;
+                }
+                currentOperation = new FilePullOperation(() -> currentOperation = null);
             }
         }
     }
@@ -123,13 +120,13 @@ public class FilePullUI implements Listener {
     /**
      * Toggles the status of the given folder between enabled / disabled
      *
-     * @param filePullFolder to toggle
+     * @param destination to toggle
      */
-    private void toggleFolderStatus(FilePullFolder filePullFolder) {
-        boolean toggled = !FilePullOperation.isFolderEnabled(filePullFolder);
-        FilePullOperation.setFolderEnabled(filePullFolder, toggled);
+    private void toggleDestinationStatus(FilePullDestination destination) {
+        boolean toggled = !destination.isEnabled();
+        destination.setEnabled(toggled);
         Bukkit.getScheduler().runTaskAsynchronously(RunicFilePull.getInstance(), () -> {
-            RunicFilePull.getInstance().getConfig().set("folder-enabled." + filePullFolder.getGitHubPath(), toggled);
+            RunicFilePull.getInstance().getConfig().set("destination-enabled." + destination.getIdentifier(), toggled);
             RunicFilePull.getInstance().saveConfig();
         });
     }

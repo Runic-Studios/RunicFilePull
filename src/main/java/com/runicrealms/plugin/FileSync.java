@@ -18,6 +18,7 @@ public class FileSync {
     public static void startWebhook(int port) {
         Spark.port(port);
         Spark.post("/", (request, response) -> {
+            if (!RunicFilePull.syncActive) return "Unmonitored event (sync not active)";
             // Create a SHA256 hash with our secret key, and compare it to the requests' x-hub-signature header for github authentication
             String signature = "sha256=" + HmacUtils.hmacSha256Hex(RunicFilePull.SECRET, request.body());
             String header = request.headers("X-Hub-Signature-256");
@@ -70,13 +71,31 @@ public class FileSync {
                     if (!fileName.endsWith(".yml")) continue;
 
                     // Create the local file path for the file we are changing
-                    File destination;
-                    try {
-                        destination = new File(RunicFilePull.getInstance().getDataFolder().getParent(), FilePullFolder.getFromPath((String) file.get("path")).getLocalPath());
-                    } catch (IllegalArgumentException exception) {
-                        continue;
+                    File destination = null;
+                    for (FilePullFolder folder : FilePullFolder.values()) {
+                        if (filePath.startsWith(folder.getGithubPath())) {
+                            destination = new File(RunicFilePull.getInstance().getDataFolder().getParent(), folder.getLocalPath());
+                            destination = new File(destination, fileName);
+                            break;
+                        }
                     }
-                    File current = new File(destination, (String) file.get("name"));
+                    if (destination == null) {
+                        for (FilePullFile pullFile : FilePullFile.values()) {
+                            if (filePath.equalsIgnoreCase(pullFile.getGithubPath())) {
+                                destination = new File(RunicFilePull.getInstance().getDataFolder().getParent(), pullFile.getLocalPath());
+                            }
+                        }
+                    }
+
+                    if (destination == null) return "Unmonitored event (unknown destination)";
+
+//                    File destination;
+//                    try {
+//                        destination = new File(RunicFilePull.getInstance().getDataFolder().getParent(), FilePullFolder.getFromPath((String) file.get("path")).getLocalPath());
+//                    } catch (IllegalArgumentException exception) {
+//                        continue;
+//                    }
+//                    File current = new File(destination, (String) file.get("name"));
 
                     try {
                         // Status states what change was made to the file, added, removed, modified, or renamed
@@ -101,9 +120,9 @@ public class FileSync {
                         }
 
                         if (status.equalsIgnoreCase("removed") || status.equalsIgnoreCase("modified")) {
-                            if (current.exists()) {
+                            if (destination.exists()) {
                                 try {
-                                    Files.delete(current.toPath());
+                                    Files.delete(destination.toPath());
                                 } catch (Exception exception) {
                                     Bukkit.broadcastMessage(ChatColor.RED + "ERROR: attempted to pull github file change " + fileName + " but could not remove local file. Message excel to get stacktrace with more info. Aborting.");
                                     exception.printStackTrace();
@@ -112,7 +131,7 @@ public class FileSync {
                             }
                         }
                         if (status.equalsIgnoreCase("added") || status.equalsIgnoreCase("modified") || status.equalsIgnoreCase("renamed")) {
-                            FileUtils.writeBase64ToFile((String) file.get("content"), current);
+                            FileUtils.writeBase64ToFile((String) file.get("content"), destination);
                         }
                         if (status.equalsIgnoreCase("added")) {
                             Bukkit.broadcastMessage(ChatColor.DARK_GREEN + "[FileSync] " + ChatColor.GREEN + "Added new file " + filePath);
