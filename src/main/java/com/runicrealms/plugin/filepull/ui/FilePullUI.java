@@ -1,8 +1,8 @@
-package com.runicrealms.plugin.ui;
+package com.runicrealms.plugin.filepull.ui;
 
-import com.runicrealms.plugin.FilePullDestination;
-import com.runicrealms.plugin.FilePullOperation;
-import com.runicrealms.plugin.RunicFilePull;
+import com.runicrealms.plugin.filepull.FilePullDestination;
+import com.runicrealms.plugin.filepull.FilePullOperation;
+import com.runicrealms.plugin.filepull.RunicFilePull;
 import com.runicrealms.plugin.common.util.ColorUtil;
 import com.runicrealms.plugin.common.util.GUIUtil;
 import org.bukkit.Bukkit;

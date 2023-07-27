@@ -1,4 +1,4 @@
-package com.runicrealms.plugin;
+package com.runicrealms.plugin.filepull;
 
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;

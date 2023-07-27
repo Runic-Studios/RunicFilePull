@@ -1,4 +1,4 @@
-package com.runicrealms.plugin;
+package com.runicrealms.plugin.filepull;
 
 import org.apache.commons.codec.digest.HmacUtils;
 import org.bukkit.Bukkit;

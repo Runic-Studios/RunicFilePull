@@ -1,4 +1,4 @@
-package com.runicrealms.plugin.command.admin;
+package com.runicrealms.plugin.filepull.command;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CatchUnknown;
@@ -6,8 +6,8 @@ import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Subcommand;
-import com.runicrealms.plugin.FilePushOperation;
-import com.runicrealms.plugin.RunicFilePull;
+import com.runicrealms.plugin.filepull.FilePushOperation;
+import com.runicrealms.plugin.filepull.RunicFilePull;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
