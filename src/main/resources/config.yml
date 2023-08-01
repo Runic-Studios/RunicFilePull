@@ -5,7 +5,7 @@ repo-path: 'Skyfallin/writer-files'
 automatic-sync:
   enabled: true
   port: 25570
-folder-enabled:
+destination-enabled:
   npcs: false
   script-items: false
   wg-regions: false
