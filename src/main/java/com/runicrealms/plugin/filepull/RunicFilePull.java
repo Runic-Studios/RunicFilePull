@@ -1,10 +1,10 @@
-package com.runicrealms.plugin;
+package com.runicrealms.plugin.filepull;
 
 import co.aikar.commands.PaperCommandManager;
-import com.runicrealms.plugin.command.admin.FilePullCommand;
-import com.runicrealms.plugin.command.admin.FilePushCommand;
-import com.runicrealms.plugin.command.admin.FileSyncCommand;
-import com.runicrealms.plugin.ui.FilePullUI;
+import com.runicrealms.plugin.filepull.command.FilePullCommand;
+import com.runicrealms.plugin.filepull.command.FilePushCommand;
+import com.runicrealms.plugin.filepull.command.FileSyncCommand;
+import com.runicrealms.plugin.filepull.ui.FilePullUI;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
