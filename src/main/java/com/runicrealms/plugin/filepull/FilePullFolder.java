@@ -21,7 +21,7 @@ public enum FilePullFolder implements FilePullDestination {
     LOOT_CHEST_TEMPLATES(Material.ENDER_CHEST, "RunicCore/loot/chest-templates", "loot/chest-templates", "loot-chest-templates", false),
     LOOT_TABLES(Material.ENDER_CHEST, "RunicCore/loot/loot-tables", "loot/loot-tables", "loot-tables", false),
     LOOT_TIMED(Material.ENDER_CHEST, "RunicCore/loot/timed-loot", "loot/timed-loot", "timed-loot", false),
-    FIELD_BOSSES(Material.TNT, "RunicCore/field-bosses", "field-bosses", "field-bosses", false),
+    //FIELD_BOSSES(Material.TNT, "RunicCore/field-bosses", "field-bosses", "field-bosses", false),
     SHOPS(Material.EMERALD, "RunicCore/shops", "shops", "shops", false),
     SPELLS(Material.POPPED_CHORUS_FRUIT, "RunicCore/spells", "spells", "spells", false),
     WORKSTATIONS(Material.ANVIL, "RunicProfessions/workstations", "workstations", "workstations", false),
