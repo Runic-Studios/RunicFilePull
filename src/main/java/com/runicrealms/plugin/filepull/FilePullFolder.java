@@ -18,7 +18,7 @@ public enum FilePullFolder implements FilePullDestination {
     SKILLS(Material.SKELETON_SKULL, "MythicMobs/Skills", "skills", "skills", false),
     ITEMS(Material.GOLD_NUGGET, "RunicItems/items", "runicitems", "items", false), // TODO change githubpath to just items
     QUESTS(Material.PAPER, "RunicQuests/quests", "quests", "quests", false),
-    LOOT_CHEST_TEMPLATES(Material.ENDER_CHEST, "RunicCore/loot/chest-templates", "loot/chest-templates", "loot-chest-templates", false),
+    LOOT_CHEST_TYPES(Material.ENDER_CHEST, "RunicCore/loot/chest-types", "loot/chest-types", "loot-chest-types", false),
     LOOT_TABLES(Material.ENDER_CHEST, "RunicCore/loot/loot-tables", "loot/loot-tables", "loot-tables", false),
     LOOT_TIMED(Material.ENDER_CHEST, "RunicCore/loot/timed-loot", "loot/timed-loot", "timed-loot", false),
     //FIELD_BOSSES(Material.TNT, "RunicCore/field-bosses", "field-bosses", "field-bosses", false),
