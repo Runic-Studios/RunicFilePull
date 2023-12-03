@@ -7,6 +7,7 @@ import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import com.runicrealms.plugin.filepull.RunicFilePull;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
 @CommandAlias("filesync")
@@ -17,7 +18,7 @@ public class FileSyncCommand extends BaseCommand {
     @CatchUnknown
     public void onCommand(CommandSender sender) {
         boolean newState = !RunicFilePull.syncActive;
-        sender.sendMessage(ChatColor.GREEN + "Turned filesync " + (newState ? "ON" : "OFF") + "! This will not persist through restarts.");
+        Bukkit.broadcastMessage(ChatColor.GREEN + "Turned filesync " + (newState ? "ON" : "OFF") + "! This will not persist through restarts.");
         RunicFilePull.syncActive = newState;
     }
 

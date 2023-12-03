@@ -100,6 +100,7 @@ public enum FilePullFile implements FilePullDestination {
         try {
             Files.copy(origin.toPath(), destination.toPath());
         } catch (Exception exception) {
+            exception.printStackTrace();
             throw new IllegalArgumentException("Copy local " + identifier + " could not copy file " + origin.toPath());
         }
     }

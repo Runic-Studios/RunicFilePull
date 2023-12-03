@@ -4,17 +4,22 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class FilePushOperation {
 
     public FilePushOperation(Runnable onComplete) {
         Bukkit.getScheduler().runTaskAsynchronously(RunicFilePull.getInstance(), () -> {
             try {
+                Bukkit.broadcastMessage(ChatColor.DARK_GREEN + "FilePUSH Initiated! I hope you know what you are doing...");
+
                 Bukkit.broadcastMessage(ChatColor.GREEN + "Cloning git repository locally...");
 
                 File cloneDir = new File(RunicFilePull.getInstance().getDataFolder(), "git-clone");
@@ -45,7 +50,10 @@ public class FilePushOperation {
                 Bukkit.broadcastMessage(ChatColor.GREEN + "Pushing to git...");
 
                 git.add().addFilepattern(".").call();
-                git.commit().setMessage("FILEPUSH: automatic push").call();
+                git.commit()
+                        .setMessage("FilePush: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                        .setAuthor(new PersonIdent("RunicRealmsGithub", "runicrealms.mc@gmail.com"))
+                        .call();
                 git.push().setCredentialsProvider(credentials).call();
                 git.close();
 
