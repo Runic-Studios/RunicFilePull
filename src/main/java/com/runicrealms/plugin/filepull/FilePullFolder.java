@@ -26,7 +26,8 @@ public enum FilePullFolder implements FilePullDestination {
     SPELLS(Material.POPPED_CHORUS_FRUIT, "RunicCore/spells", "spells", "spells", false),
     WORKSTATIONS(Material.ANVIL, "RunicProfessions/workstations", "workstations", "workstations", false),
     GUILDS(Material.SHIELD, "RunicGuilds", "guilds", "guilds-configs", false),
-    DOORS(Material.OAK_DOOR, "RunicDoors", "doors", "doors", true);
+    DOORS(Material.OAK_DOOR, "RunicDoors", "doors", "doors", true),
+    ITEM_PERKS(Material.BEACON, "RunicItems/itemperks", "itemperks", "item-perks", false);
 
     private final Material material;
     private final String localPath;

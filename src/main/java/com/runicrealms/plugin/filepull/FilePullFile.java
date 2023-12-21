@@ -19,7 +19,8 @@ public enum FilePullFile implements FilePullDestination {
     RUNIC_RESTART_CONFIG(Material.LIGHT_GRAY_STAINED_GLASS_PANE, "RunicRestart/config.yml", "runic-restart-config.yml", "runic-restart-config", false),
     RUNIC_WARPS_CONFIG(Material.ENDER_PEARL, "RunicWarps/config.yml", "runic-warps-config.yml", "warps", true),
     WEAPON_SKINS(Material.WOODEN_SWORD, "RunicItems/weapon-skins.yml", "weapon-skins.yml", "weapon-skins", false),
-    REGENERATIVE_CHESTS(Material.CHEST, "RunicCore/loot/regenerative-chests.yml", "loot/regenerative-chests.yml", "regenerative-chests", true);
+    REGENERATIVE_CHESTS(Material.CHEST, "RunicCore/loot/regenerative-chests.yml", "loot/regenerative-chests.yml", "regenerative-chests", true),
+    HOLOGRAMS(Material.ARMOR_STAND, "HolographicDisplays/database.yml", "holograms-database.yml", "holograms", true);
 
     private final Material material;
     private final String localPath;
