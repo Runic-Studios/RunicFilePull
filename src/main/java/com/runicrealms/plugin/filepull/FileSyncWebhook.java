@@ -1,5 +1,9 @@
 package com.runicrealms.plugin.filepull;
 
+import com.runicrealms.plugin.filepull.target.FileTarget;
+import com.runicrealms.plugin.filepull.target.FolderTarget;
+import com.runicrealms.plugin.filepull.target.ZipTarget;
+import com.runicrealms.plugin.filepull.target.Target;
 import org.apache.commons.codec.digest.HmacUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -13,21 +17,37 @@ import java.nio.file.Files;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class FileSync {
+public class FileSyncWebhook {
 
-    public static void startWebhook(int port) {
+    private final boolean webhookActive;
+    private boolean listening = true;
+
+    public FileSyncWebhook(boolean webhookActive, int port) {
+        if (webhookActive) Bukkit.getScheduler().runTaskAsynchronously(RunicFilePull.getInstance(), () -> startWebhook(port));
+        this.webhookActive = webhookActive;
+    }
+
+    public boolean isListening() {
+        return webhookActive && listening;
+    }
+
+    public void toggleListening() {
+        this.listening = !this.listening;
+    }
+
+    private void startWebhook(int port) {
         Spark.port(port);
         Spark.post("/", (request, response) -> {
-            if (!RunicFilePull.syncActive) return "Unmonitored event (sync not active)";
+            if (!isListening()) return "Unmonitored event (sync not active)";
             // Create a SHA256 hash with our secret key, and compare it to the requests' x-hub-signature header for github authentication
-            String signature = "sha256=" + HmacUtils.hmacSha256Hex(RunicFilePull.SECRET, request.body());
+            String signature = "sha256=" + HmacUtils.hmacSha256Hex(RunicFilePull.WEBHOOK_SECRET, request.body());
             String header = request.headers("X-Hub-Signature-256");
             if (header == null || header.isEmpty()) return "Invalid Auth (header empty)";
             if (!header.equalsIgnoreCase(signature)) return "Invalid Auth (header invalid signature)";
             JSONObject webhookBody = (JSONObject) new JSONParser().parse(request.body());
 
             String ref = (String) webhookBody.get("ref");
-            if (!ref.endsWith(RunicFilePull.BRANCH)) {
+            if (!ref.endsWith(RunicFilePull.getInstance().getFileConfig().getTargetBranch())) {
                 Bukkit.broadcastMessage(ChatColor.DARK_GREEN + "[FileSync] " + ChatColor.RED + "Unmonitored change detected on ref " + ref + ", ignoring...");
                 return "Unmonitored event (not current FileSync branch)";
             }
@@ -61,28 +81,38 @@ public class FileSync {
                 // Grab the latest commit and get the list of files changed
                 String commitSha = (String) ((JSONObject) commitInList).get("id");
 
-                JSONObject commit = (JSONObject) new JSONParser().parse(FileUtils.getWithAuth("https://api.github.com/repos/" + RunicFilePull.REPO_PATH + "/commits/" + commitSha, RunicFilePull.AUTH_TOKEN));
+                JSONObject commit = (JSONObject) new JSONParser().parse(FileUtils.getWithAuth(
+                        "https://api.github.com/repos/"
+                                + RunicFilePull.getInstance().getFileConfig().getTargetRepo()
+                                + "/commits/"
+                                + commitSha,
+                        RunicFilePull.GH_AUTH_TOKEN));
                 JSONArray commitFiles = (JSONArray) commit.get("files");
                 for (Object fileObj : commitFiles) {
                     JSONObject fileInList = (JSONObject) fileObj;
-                    JSONObject file = (JSONObject) new JSONParser().parse(FileUtils.getWithAuth((String) fileInList.get("contents_url"), RunicFilePull.AUTH_TOKEN));
+                    JSONObject file = (JSONObject) new JSONParser().parse(FileUtils.getWithAuth((String) fileInList.get("contents_url"), RunicFilePull.GH_AUTH_TOKEN));
                     String fileName = (String) file.get("name"); // Name of file
                     String filePath = (String) file.get("path"); // Name of file with path (mobs/file.yml)
                     if (!fileName.endsWith(".yml")) continue;
 
                     // Create the local file path for the file we are changing
                     File destination = null;
-                    for (FilePullFolder folder : FilePullFolder.values()) {
-                        if (filePath.startsWith(folder.getGithubPath())) {
-                            destination = new File(RunicFilePull.getInstance().getDataFolder().getParent(), folder.getLocalPath());
-                            destination = new File(destination, fileName);
-                            break;
-                        }
-                    }
-                    if (destination == null) {
-                        for (FilePullFile pullFile : FilePullFile.values()) {
-                            if (filePath.equalsIgnoreCase(pullFile.getGithubPath())) {
-                                destination = new File(RunicFilePull.getInstance().getDataFolder().getParent(), pullFile.getLocalPath());
+                    for (Target target : RunicFilePull.getInstance().getFileConfig().getTargets()) {
+                        if (target instanceof FolderTarget) {
+                            if (filePath.startsWith(target.getGitHubPath())) {
+                                destination = new File(RunicFilePull.getInstance().getDataFolder().getParent(), target.getLocalPath());
+                                destination = new File(destination, fileName);
+                                break;
+                            }
+                        } else if (target instanceof FileTarget) {
+                            if (filePath.equalsIgnoreCase(target.getGitHubPath())) {
+                                destination = new File(RunicFilePull.getInstance().getDataFolder().getParent(), target.getLocalPath());
+                                break;
+                            }
+                        } else if (target instanceof ZipTarget) {
+                            if (filePath.equalsIgnoreCase(target.getGitHubPath())) {
+                                Bukkit.broadcastMessage(ChatColor.RED + "WARNING: GH target modified zip file " + filePath + " which is not compatible with FileSync. Ignoring...");
+                                return "Unmonitored event (zip file)";
                             }
                         }
                     }
@@ -131,7 +161,7 @@ public class FileSync {
                             }
                         }
                         if (status.equalsIgnoreCase("added") || status.equalsIgnoreCase("modified") || status.equalsIgnoreCase("renamed")) {
-                            FileUtils.writeBase64ToFile((String) file.get("content"), destination);
+                            FileUtils.writeToFile(FileUtils.decodeBase64((String) file.get("content")), destination);
                         }
                         if (status.equalsIgnoreCase("added")) {
                             Bukkit.broadcastMessage(ChatColor.DARK_GREEN + "[FileSync] " + ChatColor.GREEN + "Added new file " + filePath);

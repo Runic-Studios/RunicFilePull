@@ -6,7 +6,7 @@ import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Subcommand;
-import com.runicrealms.plugin.filepull.FilePushOperation;
+import com.runicrealms.plugin.filepull.operation.FilePushOperation;
 import com.runicrealms.plugin.filepull.RunicFilePull;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -31,7 +31,7 @@ public class FilePushCommand extends BaseCommand {
         if (confirming.contains(player.getUniqueId())) {
             if (currentOperation != null) {
                 player.sendMessage(ChatColor.RED + "Cannot initiate a filepush while one is already active!");
-            } else if (RunicFilePull.syncActive) {
+            } else if (RunicFilePull.getInstance().getWebhook().isListening()) {
                 player.sendMessage(ChatColor.RED + "Cannot run filepush while filesync is active! Type /filesync to disable it temporarily.");
             } else {
                 currentOperation = new FilePushOperation(() -> {

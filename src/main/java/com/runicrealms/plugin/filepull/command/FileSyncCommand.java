@@ -17,9 +17,9 @@ public class FileSyncCommand extends BaseCommand {
     @Default
     @CatchUnknown
     public void onCommand(CommandSender sender) {
-        boolean newState = !RunicFilePull.syncActive;
+        RunicFilePull.getInstance().getWebhook().toggleListening();
+        boolean newState = RunicFilePull.getInstance().getWebhook().isListening();
         Bukkit.broadcastMessage(ChatColor.GREEN + "Turned filesync " + (newState ? "ON" : "OFF") + "! This will not persist through restarts.");
-        RunicFilePull.syncActive = newState;
     }
 
 }

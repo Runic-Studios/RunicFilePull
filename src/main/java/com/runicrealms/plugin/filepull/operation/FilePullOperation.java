@@ -1,6 +1,8 @@
-package com.runicrealms.plugin.filepull;
+package com.runicrealms.plugin.filepull.operation;
 
 import com.runicrealms.plugin.common.util.Pair;
+import com.runicrealms.plugin.filepull.RunicFilePull;
+import com.runicrealms.plugin.filepull.target.Target;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -16,7 +18,7 @@ import java.util.logging.Level;
  */
 public class FilePullOperation {
 
-    private final Map<FilePullDestination, Pair<AtomicInteger, Integer>> filesCount = new ConcurrentHashMap<>();
+    private final Map<Target, Pair<AtomicInteger, Integer>> filesCount = new ConcurrentHashMap<>();
 
     /**
      * Begins the file sync task from git
@@ -25,7 +27,7 @@ public class FilePullOperation {
         Bukkit.broadcastMessage(ChatColor.GREEN + "File Pull Initiated - Server Will Restart On Completion");
         Bukkit.broadcastMessage(ChatColor.DARK_GREEN + "WARNING - Mobs and quests may break while File Pull is running!");
 
-        for (FilePullDestination destination : RunicFilePull.destinations) {
+        for (Target destination : RunicFilePull.getInstance().getFileConfig().getTargets()) {
             if (destination.isEnabled()) {
                 Bukkit.getScheduler().runTaskAsynchronously(RunicFilePull.getInstance(), () -> {
                     try {
@@ -57,7 +59,7 @@ public class FilePullOperation {
                     Bukkit.getLogger().log(Level.INFO, "[RunicFilePull] File Pull Progress: " + percentage + "%");
                 }
             }
-        }.runTaskTimerAsynchronously(RunicFilePull.getInstance(), 20L, 20L);
+        }.runTaskTimerAsynchronously(RunicFilePull.getInstance(), 20L, 5L);
     }
 
 }

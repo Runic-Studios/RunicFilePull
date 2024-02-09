@@ -1,7 +1,7 @@
 package com.runicrealms.plugin.filepull.ui;
 
-import com.runicrealms.plugin.filepull.FilePullDestination;
-import com.runicrealms.plugin.filepull.FilePullOperation;
+import com.runicrealms.plugin.filepull.target.Target;
+import com.runicrealms.plugin.filepull.operation.FilePullOperation;
 import com.runicrealms.plugin.filepull.RunicFilePull;
 import com.runicrealms.plugin.common.util.ColorUtil;
 import com.runicrealms.plugin.common.util.GUIUtil;
@@ -34,7 +34,7 @@ public class FilePullUI implements Listener {
     private static final String TITLE = ChatColor.GREEN + "File Pull - Sync Tool";
     private static final Set<UUID> viewers = new HashSet<>();
 
-    private static final Map<Integer, FilePullDestination> destinations = new HashMap<>();
+    private static final Map<Integer, Target> destinations = new HashMap<>();
 
     private static @Nullable FilePullOperation currentOperation;
 
@@ -44,7 +44,7 @@ public class FilePullUI implements Listener {
     public static void open(Player player) {
         if (destinations.isEmpty()) {
             int slot = 9;
-            for (FilePullDestination destination : RunicFilePull.destinations) {
+            for (Target destination : RunicFilePull.getInstance().getFileConfig().getTargets()) {
                 destinations.put(slot++, destination);
             }
         }
@@ -61,7 +61,7 @@ public class FilePullUI implements Listener {
         player.openInventory(inventory);
     }
 
-    private static ItemStack buildIcon(FilePullDestination destination) {
+    private static ItemStack buildIcon(Target destination) {
         ItemStack item = new ItemStack(destination.isEnabled() ? Material.CYAN_STAINED_GLASS_PANE : destination.getIconMaterial());
         ItemMeta meta = item.getItemMeta();
         assert meta != null;
@@ -89,14 +89,14 @@ public class FilePullUI implements Listener {
         // Find corresponding folder and toggle its status
 
         if (destinations.containsKey(event.getSlot())) {
-            FilePullDestination destination = destinations.get(event.getSlot());
+            Target destination = destinations.get(event.getSlot());
             toggleDestinationStatus(destination);
             event.getInventory().setItem(event.getSlot(), buildIcon(destination));
         }
 
         // Begin sync if button pressed & any files are enabled
         if (event.getSlot() == START_ITEM_SLOT) {
-            if (RunicFilePull.destinations.stream().anyMatch(FilePullDestination::isEnabled)) {
+            if (RunicFilePull.getInstance().getFileConfig().getTargets().stream().anyMatch(Target::isEnabled)) {
                 event.getWhoClicked().closeInventory();
                 if (currentOperation != null) {
                     event.getWhoClicked().sendMessage(ChatColor.RED + "Filepull is already running!");
@@ -122,7 +122,7 @@ public class FilePullUI implements Listener {
      *
      * @param destination to toggle
      */
-    private void toggleDestinationStatus(FilePullDestination destination) {
+    private void toggleDestinationStatus(Target destination) {
         boolean toggled = !destination.isEnabled();
         destination.setEnabled(toggled);
         Bukkit.getScheduler().runTaskAsynchronously(RunicFilePull.getInstance(), () -> {

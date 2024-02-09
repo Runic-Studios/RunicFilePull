@@ -25,17 +25,23 @@ import java.util.zip.ZipOutputStream;
 public class FileUtils {
 
     /**
-     * Takes a base64 string, decodes its contents, and writes them to a file.
+     * Writes a string (probably decoded with decodeBase64) to a file.
      */
-    public static void writeBase64ToFile(String base64, File file) throws Exception {
+    public static void writeToFile(String contents, File file) throws Exception {
+        PrintWriter writer = new PrintWriter(file);
+        writer.print(contents);
+        writer.close();
+    }
+
+    /**
+     * Takes a base64 string and decodes it.
+     */
+    public static String decodeBase64(String base64) throws Exception {
         StringBuilder base64Builder = new StringBuilder(base64.replaceAll("\\n", ""));
         while (base64Builder.length() % 4 > 0) { // Base64 uses equals signs as padding characters. The number of characters must be divisble by four. If it isn't then we manually correct it.
             base64Builder.append('=');
         }
-        base64 = base64Builder.toString();
-        PrintWriter writer = new PrintWriter(file);
-        writer.print(Base64Coder.decodeString(base64));
-        writer.close();
+        return Base64Coder.decodeString(base64Builder.toString());
     }
 
     /**

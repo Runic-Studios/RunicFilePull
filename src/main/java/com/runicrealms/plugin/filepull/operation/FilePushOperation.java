@@ -1,5 +1,8 @@
-package com.runicrealms.plugin.filepull;
+package com.runicrealms.plugin.filepull.operation;
 
+import com.runicrealms.plugin.filepull.FileUtils;
+import com.runicrealms.plugin.filepull.RunicFilePull;
+import com.runicrealms.plugin.filepull.target.Target;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.eclipse.jgit.api.Git;
@@ -26,10 +29,10 @@ public class FilePushOperation {
                 if (cloneDir.exists()) {
                     FileUtils.deleteDirectory(cloneDir);
                 }
-                CredentialsProvider credentials = new UsernamePasswordCredentialsProvider(RunicFilePull.AUTH_TOKEN, "");
+                CredentialsProvider credentials = new UsernamePasswordCredentialsProvider(RunicFilePull.GH_AUTH_TOKEN, "");
                 Git git = Git.cloneRepository()
-                        .setURI("https://github.com/" + RunicFilePull.REPO_PATH + ".git")
-                        .setBranch(RunicFilePull.BRANCH)
+                        .setURI("https://github.com/" + RunicFilePull.getInstance().getFileConfig().getTargetRepo() + ".git")
+                        .setBranch(RunicFilePull.getInstance().getFileConfig().getTargetBranch())
                         .setDirectory(cloneDir)
                         .setCredentialsProvider(credentials)
                         .call();
@@ -37,8 +40,8 @@ public class FilePushOperation {
                 Bukkit.broadcastMessage(ChatColor.GREEN + "Deleting and copying files...");
 
                 try {
-                    for (FilePullDestination destination : RunicFilePull.destinations) {
-                        destination.copyLocal(cloneDir);
+                    for (Target target : RunicFilePull.getInstance().getFileConfig().getTargets()) {
+                        target.copyLocal(cloneDir);
                     }
                 } catch (Exception exception) {
                     Bukkit.broadcastMessage(ChatColor.RED + "Error copying: " + exception.getMessage());
