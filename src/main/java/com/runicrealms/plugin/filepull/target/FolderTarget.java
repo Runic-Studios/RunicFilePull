@@ -70,7 +70,7 @@ public class FolderTarget implements Target {
         if (files == null) {
             throw new IllegalStateException("There was an error loading the GitHub API, mass ping Excel!");
         }
-        File destination = new File(RunicFilePull.getInstance().getDataFolder().getParent(), localPath);
+        File destination = new File(RunicFilePull.getInstance().getDataFolder().getParentFile().getParent(), localPath);
         if (!destination.exists()) {
             if (!destination.mkdirs())
                 throw new IllegalStateException("Could not create destination folder for " + this.identifier);
@@ -126,7 +126,7 @@ public class FolderTarget implements Target {
             }
         }
         copyDestFolder.mkdirs();
-        File origin = new File(RunicFilePull.getInstance().getDataFolder().getParent(), localPath);
+        File origin = new File(RunicFilePull.getInstance().getDataFolder().getParentFile().getParent(), localPath);
         if (origin.exists()) {
             for (File file : Objects.requireNonNull(origin.listFiles())) {
                 try {

@@ -37,6 +37,12 @@ public class RunicFilePull extends JavaPlugin {
         WEBHOOK_SECRET = this.getConfig().getString("webhook-secret");
         GH_AUTH_TOKEN = this.getConfig().getString("api-token");
 
+        // Register commands
+        Bukkit.getPluginManager().registerEvents(new FilePullUI(), this);
+        commandManager.registerCommand(new FilePullCommand());
+        commandManager.registerCommand(new FilePushCommand());
+        commandManager.registerCommand(new FileSyncCommand());
+
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
             try {
                 this.config = new FilePullConfig(
@@ -50,12 +56,6 @@ public class RunicFilePull extends JavaPlugin {
                 return;
             }
 
-            // Register commands
-            Bukkit.getPluginManager().registerEvents(new FilePullUI(), this);
-            commandManager.registerCommand(new FilePullCommand());
-            commandManager.registerCommand(new FilePushCommand());
-            commandManager.registerCommand(new FileSyncCommand());
-
             // Set config toggled on/off
             for (Target target : this.config.getTargets()) {
                 target.setEnabled(this.getConfig().getBoolean("destination-enabled." + target.getIdentifier(), false));
@@ -66,9 +66,9 @@ public class RunicFilePull extends JavaPlugin {
             int port = -1;
             try {
                 port = Integer.parseInt(Objects.requireNonNull(this.getConfig().getString("automatic-sync.port")));
-            } catch (NumberFormatException | NullPointerException ignored) {}
+            } catch (NumberFormatException | NullPointerException ignored) {
+            }
             this.webhook = new FileSyncWebhook(webhookActive, port);
-
         });
     }
 

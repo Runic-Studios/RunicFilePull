@@ -11,7 +11,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
 
 /**
  * A sync/transfer operation to retrieve yaml files from GitHub
@@ -56,7 +55,6 @@ public class FilePullOperation {
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         player.sendTitle("", ChatColor.GREEN + "File Pull: " + ChatColor.YELLOW + percentage + "%", 0, 40, 0);
                     }
-                    Bukkit.getLogger().log(Level.INFO, "[RunicFilePull] File Pull Progress: " + percentage + "%");
                 }
             }
         }.runTaskTimerAsynchronously(RunicFilePull.getInstance(), 20L, 5L);

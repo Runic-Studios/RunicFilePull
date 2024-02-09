@@ -51,7 +51,7 @@ public class FileTarget implements Target {
                                 + githubPath
                                 + "?ref=" + RunicFilePull.getInstance().getFileConfig().getTargetBranch(),
                         RunicFilePull.GH_AUTH_TOKEN));
-                File destination = new File(RunicFilePull.getInstance().getDataFolder().getParent(), localPath);
+                File destination = new File(RunicFilePull.getInstance().getDataFolder().getParentFile().getParent(), localPath);
                 if (destination.exists()) {
                     if (!destination.delete())
                         throw new IllegalStateException("Could not delete file " + this.localPath);
@@ -89,7 +89,7 @@ public class FileTarget implements Target {
             if (!destination.delete())
                 throw new IllegalStateException("Copy local " + identifier + " could not delete " + destination.getName());
         }
-        File origin = new File(RunicFilePull.getInstance().getDataFolder().getParent(), localPath);
+        File origin = new File(RunicFilePull.getInstance().getDataFolder().getParentFile().getParent(), localPath);
         try {
             Files.copy(origin.toPath(), destination.toPath());
         } catch (Exception exception) {

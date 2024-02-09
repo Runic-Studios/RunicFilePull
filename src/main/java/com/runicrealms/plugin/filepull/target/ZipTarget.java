@@ -53,7 +53,7 @@ public class ZipTarget implements Target {
                         throw new IllegalStateException("Could not delete file " + localTempPath);
                 }
                 FileUtils.writeToFile(FileUtils.decodeBase64((String) commit.get("content")), destination);
-                FileUtils.clearAndUnzipDirectory(destination, new File(RunicFilePull.getInstance().getDataFolder().getParent(), localFolderPath));
+                FileUtils.clearAndUnzipDirectory(destination, new File(RunicFilePull.getInstance().getDataFolder().getParentFile().getParent(), localFolderPath));
             } catch (Exception exception) {
                 Bukkit.broadcastMessage(ChatColor.RED + "ERROR WITH FILEPULL downloading " + githubFilePath + ", please record this time and message excel!");
                 exception.printStackTrace();
@@ -85,7 +85,7 @@ public class ZipTarget implements Target {
         if (local.exists()) local.delete();
 //            if (!local.delete()) throw new IllegalStateException("Could not delete local " + identifier + " zip");
         FileUtils.zipDirectoryAndMove(
-                new File(RunicFilePull.getInstance().getDataFolder().getParent(), localFolderPath),
+                new File(RunicFilePull.getInstance().getDataFolder().getParentFile().getParent(), localFolderPath),
                 local,
                 githubLocalFolder);
 //        if (!local.delete())

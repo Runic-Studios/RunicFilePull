@@ -2,8 +2,8 @@ package com.runicrealms.plugin.filepull;
 
 import com.runicrealms.plugin.filepull.target.FileTarget;
 import com.runicrealms.plugin.filepull.target.FolderTarget;
-import com.runicrealms.plugin.filepull.target.ZipTarget;
 import com.runicrealms.plugin.filepull.target.Target;
+import com.runicrealms.plugin.filepull.target.ZipTarget;
 import org.apache.commons.codec.digest.HmacUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -23,7 +23,8 @@ public class FileSyncWebhook {
     private boolean listening = true;
 
     public FileSyncWebhook(boolean webhookActive, int port) {
-        if (webhookActive) Bukkit.getScheduler().runTaskAsynchronously(RunicFilePull.getInstance(), () -> startWebhook(port));
+        if (webhookActive)
+            Bukkit.getScheduler().runTaskAsynchronously(RunicFilePull.getInstance(), () -> startWebhook(port));
         this.webhookActive = webhookActive;
     }
 
@@ -100,13 +101,13 @@ public class FileSyncWebhook {
                     for (Target target : RunicFilePull.getInstance().getFileConfig().getTargets()) {
                         if (target instanceof FolderTarget) {
                             if (filePath.startsWith(target.getGitHubPath())) {
-                                destination = new File(RunicFilePull.getInstance().getDataFolder().getParent(), target.getLocalPath());
+                                destination = new File(RunicFilePull.getInstance().getDataFolder().getParentFile().getParent(), target.getLocalPath());
                                 destination = new File(destination, fileName);
                                 break;
                             }
                         } else if (target instanceof FileTarget) {
                             if (filePath.equalsIgnoreCase(target.getGitHubPath())) {
-                                destination = new File(RunicFilePull.getInstance().getDataFolder().getParent(), target.getLocalPath());
+                                destination = new File(RunicFilePull.getInstance().getDataFolder().getParentFile().getParent(), target.getLocalPath());
                                 break;
                             }
                         } else if (target instanceof ZipTarget) {
@@ -121,7 +122,7 @@ public class FileSyncWebhook {
 
 //                    File destination;
 //                    try {
-//                        destination = new File(RunicFilePull.getInstance().getDataFolder().getParent(), FilePullFolder.getFromPath((String) file.get("path")).getLocalPath());
+//                        destination = new File(RunicFilePull.getInstance().getDataFolder().getParentFile().getParent(), FilePullFolder.getFromPath((String) file.get("path")).getLocalPath());
 //                    } catch (IllegalArgumentException exception) {
 //                        continue;
 //                    }
