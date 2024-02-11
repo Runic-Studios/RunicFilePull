@@ -1,30 +1,12 @@
 webhook-secret: secret-here
 api-token: access-token-here
-branch: master
-repo-path: 'Skyfallin/writer-files'
+branch: main
+repo-path: 'RunicRealmsGithub/writer-files'
 automatic-sync:
   enabled: true
   port: 25570
-destination-enabled:
-  npcs: false
-  script-items: false
-  wg-regions: false
-  workstations-locations: false
-  runic-restart-config: false
-  warps: false
-  weapon-skins: false
-  regenerative-chests: false
-  mobs: false
-  skills: false
-  items: false
-  quests: false
-  loot-chest-templates: false
-  loot-tables: false
-  timed-loot: false
-  field-bosses: false
-  shops: false
-  spells: false
-  workstations: false
-  guilds-configs: false
-  doors: false
-  spawners: false
+config:
+  file-path: path-here
+  repo:
+    path: RunicRealmsGithub/writer-files-config
+    branch: main
