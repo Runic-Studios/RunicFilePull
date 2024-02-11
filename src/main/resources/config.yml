@@ -1,7 +1,5 @@
 webhook-secret: secret-here
 api-token: access-token-here
-branch: main
-repo-path: 'RunicRealmsGithub/writer-files'
 automatic-sync:
   enabled: true
   port: 25570
